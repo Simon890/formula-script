@@ -58,3 +58,15 @@ test('Multiple operand operation', () => {
         {type: "RightParen", value: ")"},
     ]);
 });
+
+test('Identifier', () => {
+    const t = new Tokenizer("SUM(1.7, 23)");
+    expect(t.tokenize()).toEqual([
+        {type: "Identifier", value: "SUM"},
+        {type: "LeftParen", value: "("},
+        {type: "NumberLiteral", value: 1.7},
+        {type: "Comma", value: ","},
+        {type: "NumberLiteral", value: 23},
+        {type: "RightParen", value: ")"},
+    ]);
+});
