@@ -59,6 +59,10 @@ export class Tokenizer {
 
             throw new UnknownTokenError(current, this._pos + 1);
         }
+        this._tokens.push({
+            type: "EOF",
+            value: "EOF"
+        });
         return this._tokens;
     }
 

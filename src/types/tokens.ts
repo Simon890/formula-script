@@ -10,37 +10,53 @@ export type TokenNumberLiteral = {
 
 export type TokenLeftParen = {
     type: "LeftParen",
-    value: "("
+    value: "(" | string
 }
 
 export type TokenRightParen = {
     type: "RightParen",
-    value: ")"
+    value: ")" | string
 }
 
 export type TokenComma = {
     type: "Comma",
-    value: ","
+    value: "," | string
 }
 
 export type TokenAddOp = {
     type: "AddOp",
-    value: "+"
+    value: "+" | string
 }
 
 export type TokenSubOp = {
     type: "SubOp",
-    value: "-"
+    value: "-" | string
 }
 
 export type TokenMultOp = {
     type: "MultOp",
-    value: "*"
+    value: "*" | string
 }
 
 export type TokenDivOp = {
     type: "DivOp",
-    value: "/"
+    value: "/" | string
 }
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp;
+export type TokenEOF = {
+    type: "EOF",
+    value: string
+}
+
+export type BinaryExpression = {
+    left: Token,
+    right: Token,
+    operator: string,
+    type: "BinaryExpression",
+    value: string
+}
+
+
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF;
+
+export type TokenType = Token["type"];
