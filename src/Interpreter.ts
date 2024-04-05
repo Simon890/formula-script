@@ -2,7 +2,10 @@ import { Arguments } from "./Arguments";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
+import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
+import { Choose } from "./func/Choose";
+import { Random } from "./func/Random";
 import { Sum } from "./func/Sum";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
@@ -18,16 +21,9 @@ export class Interpreter {
         this._registry = new FunctionsRegistry();
         this._registry.register("SUM", new Sum);
         this._registry.register("AVG", new Avg);
-        this._registry.register("RANDOM", {
-            exec(args) {
-                const min = args.asNumber(0);
-                const max = args.asNumber(1);
-                return Math.floor(Math.random() * (max - min + 1) + min);
-            },
-            numParams() {
-                return 2;
-            }
-        });
+        this._registry.register("RANDOM", new Random);
+        this._registry.register("ABS", new Abs);
+        this._registry.register("CHOOSE", new Choose);
     }
     
     public run(str : string) {
