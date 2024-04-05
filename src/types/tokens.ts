@@ -48,6 +48,12 @@ export type TokenEOF = {
     value: string
 }
 
+export type TokenFunctionCall = {
+    type: "FunctionCall",
+    value: string,
+    args: Token[]
+}
+
 export type BinaryExpression = {
     left: Token,
     right: Token,
@@ -57,6 +63,7 @@ export type BinaryExpression = {
 }
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF;
+
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall;
 
 export type TokenType = Token["type"];

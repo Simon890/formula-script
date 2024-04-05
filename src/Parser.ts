@@ -1,6 +1,6 @@
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenNumberLiteral, TokenType } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenType } from "./types/tokens";
 
 export class Parser {
     
@@ -16,9 +16,15 @@ export class Parser {
     public parse() {
         while(!this._isEOF()) {
             if(this._isExpression()) {
-                const token = this._sumExpression();
-                this._ast.body.push(token);
-                continue;
+                if(this._current().type == "Identifier") {
+                    const token = this._functionCall();
+                    this._ast.body.push(token);
+                    continue;
+                } else {
+                    const token = this._sumExpression();
+                    this._ast.body.push(token);
+                    continue;
+                }
             }
         }
         return this._ast;
@@ -97,13 +103,33 @@ export class Parser {
 
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
-
         if(this._current().type == "LeftParen") {
             this._advance("LeftParen");
             const expr = this._sumExpression();
             this._advance("RightParen");
             return expr;
         }
+        if(this._current().type == "Identifier") return this._functionCall();
         throw new Error("Unexpected end of input");
+    }
+
+    private _functionCall(): TokenFunctionCall {
+        const value = this._advance("Identifier").value as string;
+        const args : Token[] = [];
+        this._advance("LeftParen");
+        while(this._current().type != "RightParen") {
+            const expr = this._sumExpression();
+            args.push(expr);
+            if(this._current().type == "RightParen") {
+                break;
+            }
+            this._advance("Comma");
+        }
+        this._advance("RightParen");
+        return {
+            args,
+            type: "FunctionCall",
+            value
+        }
     }
 }
