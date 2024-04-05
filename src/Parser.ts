@@ -21,7 +21,7 @@ export class Parser {
                     this._ast.body.push(token);
                     continue;
                 } else {
-                    const token = this._sumExpression();
+                    const token = this._boolExpression();
                     this._ast.body.push(token);
                     continue;
                 }
@@ -67,6 +67,27 @@ export class Parser {
         return value as TokenNumberLiteral;
     }
 
+    private _boolExpression(): BinaryExpression {
+        let left : Token = this._sumExpression();
+        while(!this._isEOF() && (this._current().value == "=" || this._current().value == ">" || this._current().value == "<")) {
+            const boolToken = this._advance(this._current().type);
+            let operator = boolToken.value as string;
+            if(this._current().value == "=" || this._current().value == ">" || this._current().value == "<") {
+                const secondBoolToken = this._advance(this._current().type);
+                operator += secondBoolToken.value as string;
+            }
+            const right = this._sumExpression();
+            left = {
+                left,
+                right,
+                operator,
+                type: "BinaryExpression",
+                value: ""
+            }
+        }
+        return left as BinaryExpression;
+    }
+
     private _sumExpression() : BinaryExpression {
         let left : Token = this._multExpression();
         while(!this._isEOF() && (this._current().value == "+" || this._current().value == "-")) {
@@ -105,7 +126,7 @@ export class Parser {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
         if(this._current().type == "LeftParen") {
             this._advance("LeftParen");
-            const expr = this._sumExpression();
+            const expr = this._boolExpression();
             this._advance("RightParen");
             return expr;
         }
@@ -118,7 +139,7 @@ export class Parser {
         const args : Token[] = [];
         this._advance("LeftParen");
         while(this._current().type != "RightParen") {
-            const expr = this._sumExpression();
+            const expr = this._boolExpression();
             args.push(expr);
             if(this._current().type == "RightParen") {
                 break;

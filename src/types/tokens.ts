@@ -43,6 +43,21 @@ export type TokenDivOp = {
     value: "/" | string
 }
 
+export type TokenEqOp = {
+    type: "EqOp",
+    value: "=" | string
+}
+
+export type TokenGtOp = {
+    type: "GtOp",
+    value: ">" | string
+}
+
+export type TokenLtOp = {
+    type: "LtOp",
+    value: "<" | string
+}
+
 export type TokenEOF = {
     type: "EOF",
     value: string
@@ -64,6 +79,6 @@ export type BinaryExpression = {
 
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp;
 
 export type TokenType = Token["type"];

@@ -1,5 +1,5 @@
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenComma, TokenDivOp, TokenIdentifier, TokenLeftParen, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
     private _pos = 0;
@@ -54,6 +54,18 @@ export class Tokenizer {
             }
             if(this._isMultOp(current)) {
                 this._tokens.push(this._multOp());
+                continue;
+            }
+            if(this._isEqOp(current)) {
+                this._tokens.push(this._eqOp());
+                continue;
+            }
+            if(this._isGtOp(current)) {
+                this._tokens.push(this._gtOp());
+                continue;
+            }
+            if(this._isLtOp(current)) {
+                this._tokens.push(this._ltOp());
                 continue;
             }
 
@@ -120,6 +132,18 @@ export class Tokenizer {
 
     private _isDivOp(value: string): boolean {
         return REGEX.DIV_OP.test(value);
+    }
+
+    private _isEqOp(value: string): boolean {
+        return REGEX.EQ_OP.test(value);
+    }
+
+    private _isGtOp(value: string): boolean {
+        return REGEX.GT_OP.test(value);
+    }
+
+    private _isLtOp(value: string): boolean {
+        return REGEX.LT_OP.test(value);
     }
 
     private _skipEmptySpace() {
@@ -233,6 +257,36 @@ export class Tokenizer {
             value: "/"
         }
     }
+
+    private _eqOp() : TokenEqOp {
+        if(this._isEqOp(this._current())) {
+            this._advance();
+        }
+        return {
+            type: "EqOp",
+            value: "="
+        }
+    }
+
+    private _gtOp(): TokenGtOp {
+        if(this._isGtOp(this._current())) {
+            this._advance();
+        }
+        return {
+            type: "GtOp",
+            value: ">"
+        }
+    }
+
+    private _ltOp(): TokenLtOp {
+        if(this._isLtOp(this._current())) {
+            this._advance();
+        }
+        return {
+            type: "LtOp",
+            value: "<"
+        }
+    }
     
 }
 
@@ -247,5 +301,8 @@ export const REGEX = Object.freeze({
     ADD_OP: /[\+]/,
     SUB_OP: /[\-]/,
     MULT_OP: /[\*]/,
-    DIV_OP: /[\/]/
+    DIV_OP: /[\/]/,
+    EQ_OP: /[\=]/,
+    GT_OP: /[\>]/,
+    LT_OP: /[\<]/
 });
