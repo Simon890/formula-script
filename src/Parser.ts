@@ -15,11 +15,9 @@ export class Parser {
 
     public parse() {
         while(!this._isEOF()) {
-            if(this._isExpression()) {
-                const token = this._boolExpression();
-                this._ast.body.push(token);
-                continue;
-            }
+            const token = this._boolExpression();
+            this._ast.body.push(token);
+            continue;
         }
         return this._ast;
     }
@@ -30,11 +28,6 @@ export class Parser {
 
     private _isEOF() {
         return this._tokens[this._pos].type == "EOF";
-    }
-
-    private _isExpression() {
-        const token = this._current();
-        return token.type == "NumberLiteral" || token.type == "Identifier" || token.type == "LeftParen" || token.type == "StringLiteral" || token.type == "FunctionCall";
     }
 
     private _expect(type: TokenType) {
@@ -124,6 +117,12 @@ export class Parser {
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
         if(this._current().type == "StringLiteral") return this._stringLiteral();
+        if(this._current().type == "AddOp" || this._current().type == "SubOp") {
+            const mathOp = this._advance();
+            const numberLiteral = this._numberLiteral();
+            numberLiteral.value *= mathOp.type == "SubOp" ? -1 : 1;
+            return numberLiteral
+        }
         if(this._current().type == "LeftParen") {
             this._advance("LeftParen");
             const expr = this._boolExpression();
