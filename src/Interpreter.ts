@@ -1,6 +1,7 @@
 import { Arguments } from "./Arguments";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
+import { MissingArguments } from "./errors/MissingArguments";
 import { Avg } from "./func/Avg";
 import { Sum } from "./func/Sum";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -17,6 +18,16 @@ export class Interpreter {
         this._registry = new FunctionsRegistry();
         this._registry.register("SUM", new Sum);
         this._registry.register("AVG", new Avg);
+        this._registry.register("RANDOM", {
+            exec(args) {
+                const min = args.asNumber(0);
+                const max = args.asNumber(1);
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            },
+            numParams() {
+                return 2;
+            }
+        });
     }
     
     public run(str : string) {
@@ -79,8 +90,11 @@ export class Interpreter {
             return arg.value;
         });
         const formulaFunction = this._registry.get(identifier);
-        const numParams = formulaFunction.numParams();
-        if(numParams !== undefined && numParams !== null && numParams != args.length) throw new Error("No parameters");
+        let numParams = undefined;
+        if(formulaFunction.numParams) {
+            numParams = formulaFunction.numParams();
+        }
+        if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
         return formulaFunction.exec(new Arguments(args));
     }
 

@@ -1,13 +1,14 @@
 import { FunctionDoesNotExist } from "./errors/FunctionDoesNotExist";
 import { FormulaFunction } from "./FormulaFunction";
+import { ObjectFormulaFunction } from "./types/formulaFunction";
 
 export class FunctionsRegistry {
-    private _functions = new Map<string, FormulaFunction>();
+    private _functions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
 
     constructor() {
     }
 
-    public register(name: string, a: FormulaFunction) {
+    public register(name: string, a: FormulaFunction | ObjectFormulaFunction) {
         this._functions.set(name, a);
     }
 
@@ -15,7 +16,7 @@ export class FunctionsRegistry {
         this._functions.delete(name);
     }
 
-    public get(name: string) : FormulaFunction {
+    public get(name: string) : FormulaFunction | ObjectFormulaFunction {
         if(this._functions.has(name)) return this._functions.get(name)!;
         throw new FunctionDoesNotExist(name);
     }
