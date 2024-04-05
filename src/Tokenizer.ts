@@ -1,5 +1,5 @@
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
     private _pos = 0;
@@ -36,6 +36,11 @@ export class Tokenizer {
             if(this._isComma(current)) {
                 const comma = this._comma();
                 this._tokens.push(comma);
+                continue;
+            }
+            if(this._isSimpleQuote(current) || this._isDoubleQuote(current)) {
+                const stringToken = this._string(current);
+                this._tokens.push(stringToken);
                 continue;
             }
 
@@ -144,6 +149,14 @@ export class Tokenizer {
 
     private _isLtOp(value: string): boolean {
         return REGEX.LT_OP.test(value);
+    }
+
+    private _isDoubleQuote(value: string): boolean {
+        return REGEX.DOUBLE_QUOTE.test(value);
+    }
+
+    private _isSimpleQuote(value: string): boolean {
+        return REGEX.SIMPLE_QUOTE.test(value);
     }
 
     private _skipEmptySpace() {
@@ -287,6 +300,20 @@ export class Tokenizer {
             value: "<"
         }
     }
+
+    private _string(quote : string) : TokenStringLiteral {
+        this._advance();
+        let value = "";
+        while(this._current() != quote) {
+            value += this._current();
+            this._advance();
+        }
+        this._advance();
+        return {
+            type: "StringLiteral",
+            value
+        }
+    }
     
 }
 
@@ -304,5 +331,7 @@ export const REGEX = Object.freeze({
     DIV_OP: /[\/]/,
     EQ_OP: /[\=]/,
     GT_OP: /[\>]/,
-    LT_OP: /[\<]/
+    LT_OP: /[\<]/,
+    DOUBLE_QUOTE: /["]/,
+    SIMPLE_QUOTE: /[']/
 });

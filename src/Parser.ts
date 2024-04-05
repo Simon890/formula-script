@@ -1,6 +1,6 @@
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenType } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenStringLiteral, TokenType } from "./types/tokens";
 
 export class Parser {
     
@@ -40,7 +40,7 @@ export class Parser {
 
     private _isExpression() {
         const token = this._current();
-        return token.type == "NumberLiteral" || token.type == "Identifier" || token.type == "LeftParen";
+        return token.type == "NumberLiteral" || token.type == "Identifier" || token.type == "LeftParen" || token.type == "StringLiteral";
     }
 
     private _expect(type: TokenType) {
@@ -65,6 +65,11 @@ export class Parser {
     private _numberLiteral() : TokenNumberLiteral {
         const value = this._advance("NumberLiteral");
         return value as TokenNumberLiteral;
+    }
+
+    private _stringLiteral(): TokenStringLiteral {
+        const value = this._advance("StringLiteral");
+        return value as TokenStringLiteral;
     }
 
     private _boolExpression(): BinaryExpression {
@@ -124,6 +129,7 @@ export class Parser {
 
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
+        if(this._current().type == "StringLiteral") return this._stringLiteral();
         if(this._current().type == "LeftParen") {
             this._advance("LeftParen");
             const expr = this._boolExpression();

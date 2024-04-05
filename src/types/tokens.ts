@@ -8,6 +8,11 @@ export type TokenNumberLiteral = {
     value: number
 }
 
+export type TokenStringLiteral = {
+    type: "StringLiteral",
+    value: string
+}
+
 export type TokenLeftParen = {
     type: "LeftParen",
     value: "(" | string
@@ -79,6 +84,6 @@ export type BinaryExpression = {
 
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenStringLiteral;
 
 export type TokenType = Token["type"];
