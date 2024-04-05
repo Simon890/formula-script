@@ -16,15 +16,9 @@ export class Parser {
     public parse() {
         while(!this._isEOF()) {
             if(this._isExpression()) {
-                if(this._current().type == "Identifier") {
-                    const token = this._functionCall();
-                    this._ast.body.push(token);
-                    continue;
-                } else {
-                    const token = this._boolExpression();
-                    this._ast.body.push(token);
-                    continue;
-                }
+                const token = this._boolExpression();
+                this._ast.body.push(token);
+                continue;
             }
         }
         return this._ast;
@@ -40,7 +34,7 @@ export class Parser {
 
     private _isExpression() {
         const token = this._current();
-        return token.type == "NumberLiteral" || token.type == "Identifier" || token.type == "LeftParen" || token.type == "StringLiteral";
+        return token.type == "NumberLiteral" || token.type == "Identifier" || token.type == "LeftParen" || token.type == "StringLiteral" || token.type == "FunctionCall";
     }
 
     private _expect(type: TokenType) {

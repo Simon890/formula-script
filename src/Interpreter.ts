@@ -1,14 +1,22 @@
+import { Arguments } from "./Arguments";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
+import { Avg } from "./func/Avg";
+import { Sum } from "./func/Sum";
+import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall } from "./types/tokens";
 
 export class Interpreter {
     private _ast !: AST;
+    private _registry : FunctionsRegistry;
 
     constructor() {
+        this._registry = new FunctionsRegistry();
+        this._registry.register("SUM", new Sum);
+        this._registry.register("AVG", new Avg);
     }
     
     public run(str : string) {
@@ -30,6 +38,9 @@ export class Interpreter {
                 expr = this._binaryExpression(token);
                 continue;
             }
+            if(token.type == "FunctionCall") {
+                expr = this._functionCall(token);
+            }
         }
         return expr;
     }
@@ -37,6 +48,7 @@ export class Interpreter {
     private _binaryExpression(token : Token) : number | boolean | string {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
+        if(token.type == "FunctionCall") return this._functionCall(token);
         if(token.type == "BinaryExpression") {
             if(token.operator == "+") return this.__addition(token);
             if(token.operator == "-") return this._checkNumeric(this._binaryExpression(token.left)) - this._checkNumeric(this._binaryExpression(token.right));
@@ -58,6 +70,18 @@ export class Interpreter {
         if(this._isBoolean(rightExpression)) throw new CantAddBoolValue();
         if(this._isString(leftExpression) || this._isString(rightExpression)) return String(leftExpression) + String(rightExpression);
         return leftExpression + rightExpression;
+    }
+
+    private _functionCall(token: TokenFunctionCall) : number | string | boolean {
+        const identifier = token.value;
+        const args = token.args.map(arg => {
+            if(arg.type == "FunctionCall") return this._functionCall(arg);
+            return arg.value;
+        });
+        const formulaFunction = this._registry.get(identifier);
+        const numParams = formulaFunction.numParams();
+        if(numParams !== undefined && numParams !== null && numParams != args.length) throw new Error("No parameters");
+        return formulaFunction.exec(new Arguments(args));
     }
 
     private _checkNumeric(val: any) : number {

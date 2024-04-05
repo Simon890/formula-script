@@ -7,6 +7,10 @@ export class Arguments {
 
     }
 
+    public get length() {
+        return this._values.length
+    }
+
     public asBool(index : number) : boolean {
         this._checkIndex(index);
         const value = this._values[index];
