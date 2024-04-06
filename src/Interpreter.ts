@@ -32,12 +32,14 @@ export class Interpreter {
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
         this._registry.register("CHOOSERANGE", new ChooseRange);
-            }
+    }
     
-    public run(str : string) {
-        const tokenizer = new Tokenizer(str);
-        const parser = new Parser(tokenizer.tokenize());
-        this._ast = parser.parse();
+    public run(str : string, rebuildAST = true) {
+        if(rebuildAST || this._ast == null) {
+            const tokenizer = new Tokenizer(str);
+            const parser = new Parser(tokenizer.tokenize());
+            this._ast = parser.parse();
+        }
         let expr : string | number | boolean | null = null;
         for (let i = 0; i < this._ast.body.length; i++) {
             const token = this._ast.body[i];
@@ -111,8 +113,8 @@ export class Interpreter {
             numParams = formulaFunction.numParams();
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
-        return formulaFunction.exec(new Arguments(args));
-            }
+            return formulaFunction.exec(new Arguments(args));
+    }
 
     private _checkNumeric(val: any) : number {
         if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val);
