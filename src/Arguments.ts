@@ -1,6 +1,6 @@
 import { ArgumentDoesNotExist } from "./errors/ArgumentDoesNotExist"
 import { ArgumentWrongType } from "./errors/ArgumentWrongType";
-import { Range } from "./types/range";
+import { RangeArray } from "./RangeArray";
 
 export class Arguments {
 
@@ -38,11 +38,11 @@ export class Arguments {
         return this._values[index];
     }
 
-    public asRange(index : number) : Range {
+    public asRange(index : number) : RangeArray {
         this._checkIndex(index);
         const value = this._values[index];
-        if(!Array.isArray(value)) throw new ArgumentWrongType(value, "range");
-        return value as Range;
+        if(!Array.isArray((value))) throw new ArgumentWrongType(value, "range");
+        return new RangeArray(value);
     }
 
     private _checkIndex(index : number) {

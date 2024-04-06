@@ -1,11 +1,14 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
 
-export class ChooseRange extends FormulaFunction {
+export class SumRange extends FormulaFunction {
     exec(args: Arguments): string | number | boolean {
+        let total = 0;
         const range = args.asRange(0);
-        const index = Math.floor(Math.random() * range.length);
-        return range.asAny(index);
+        for (let i = 0; i < range.length; i++) {
+            total += range.asNumber(i);
+        }
+        return total;
     }
 
     public numParams(): number | null | undefined {

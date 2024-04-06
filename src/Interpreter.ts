@@ -9,6 +9,7 @@ import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
 import { Random } from "./func/Random";
 import { Sum } from "./func/Sum";
+import { SumRange } from "./func/SumRange";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
@@ -25,12 +26,13 @@ export class Interpreter {
     constructor() {
         this._registry = new FunctionsRegistry();
         this._registry.register("SUM", new Sum);
+        this._registry.register("SUMRANGE", new SumRange);
         this._registry.register("AVG", new Avg);
         this._registry.register("RANDOM", new Random);
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
         this._registry.register("CHOOSERANGE", new ChooseRange);
-    }
+            }
     
     public run(str : string) {
         const tokenizer = new Tokenizer(str);
@@ -110,7 +112,7 @@ export class Interpreter {
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
         return formulaFunction.exec(new Arguments(args));
-    }
+            }
 
     private _checkNumeric(val: any) : number {
         if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val);
