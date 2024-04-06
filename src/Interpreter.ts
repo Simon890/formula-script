@@ -5,6 +5,7 @@ import { MissingArguments } from "./errors/MissingArguments";
 import { NoHandlerSet } from "./errors/NoHandlerSet";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
+import { AvgRange } from "./func/AvgRange";
 import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
 import { Random } from "./func/Random";
@@ -28,6 +29,7 @@ export class Interpreter {
         this._registry.register("SUM", new Sum);
         this._registry.register("SUMRANGE", new SumRange);
         this._registry.register("AVG", new Avg);
+        this._registry.register("AVGRANGE", new AvgRange);
         this._registry.register("RANDOM", new Random);
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
