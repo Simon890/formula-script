@@ -6,6 +6,7 @@ import { NoHandlerSet } from "./errors/NoHandlerSet";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
 import { Choose } from "./func/Choose";
+import { ChooseRange } from "./func/ChooseRange";
 import { Random } from "./func/Random";
 import { Sum } from "./func/Sum";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -28,6 +29,7 @@ export class Interpreter {
         this._registry.register("RANDOM", new Random);
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
+        this._registry.register("CHOOSERANGE", new ChooseRange);
     }
     
     public run(str : string) {
