@@ -69,6 +69,10 @@ export class Interpreter {
         else this._rangeHandler = {handle: handler};
     }
 
+    public get registry() {
+        return this._registry;
+    }
+
     private _binaryExpression(token : Token) : number | boolean | string {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
