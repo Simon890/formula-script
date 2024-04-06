@@ -5,7 +5,8 @@ test('Add operation', () => {
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 1},
         {type: "AddOp", value: "+"},
-        {type: "NumberLiteral", value: 2.5}
+        {type: "NumberLiteral", value: 2.5},
+        {type: "EOF", value: "EOF"}
     ]);
 });
 
@@ -14,7 +15,8 @@ test('Substract operation', () => {
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 5.99},
         {type: "SubOp", value: "-"},
-        {type: "NumberLiteral", value: 91}
+        {type: "NumberLiteral", value: 91},
+        {type: "EOF", value: "EOF"}
     ]);
 });
 
@@ -23,7 +25,8 @@ test('Multiplication operation', () => {
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 1.5},
         {type: "MultOp", value: "*"},
-        {type: "NumberLiteral", value: 0}
+        {type: "NumberLiteral", value: 0},
+        {type: "EOF", value: "EOF"}
     ]);
 });
 
@@ -32,7 +35,8 @@ test('Division operation', () => {
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 8},
         {type: "DivOp", value: "/"},
-        {type: "NumberLiteral", value: 4.5}
+        {type: "NumberLiteral", value: 4.5},
+        {type: "EOF", value: "EOF"}
     ]);
 });
 
@@ -56,6 +60,7 @@ test('Multiple operand operation', () => {
         {type: "DivOp", value: "/"},
         {type: "NumberLiteral", value: 2},
         {type: "RightParen", value: ")"},
+        {type: "EOF", value: "EOF"}
     ]);
 });
 
@@ -68,5 +73,6 @@ test('Identifier', () => {
         {type: "Comma", value: ","},
         {type: "NumberLiteral", value: 23},
         {type: "RightParen", value: ")"},
+        {type: "EOF", value: "EOF"}
     ]);
 });
