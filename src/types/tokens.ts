@@ -13,6 +13,13 @@ export type TokenStringLiteral = {
     value: string
 }
 
+export type TokenRange = {
+    type: "Range",
+    value: string,
+    left: string,
+    right: string
+}
+
 export type TokenLeftParen = {
     type: "LeftParen",
     value: "(" | string
@@ -63,6 +70,11 @@ export type TokenLtOp = {
     value: "<" | string
 }
 
+export type TokenColon = {
+    type: "Colon",
+    value: ":"
+}
+
 export type TokenEOF = {
     type: "EOF",
     value: string
@@ -84,6 +96,6 @@ export type BinaryExpression = {
 
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenStringLiteral;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenStringLiteral | TokenColon | TokenRange;
 
 export type TokenType = Token["type"];

@@ -1,6 +1,6 @@
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenStringLiteral, TokenType } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenType } from "./types/tokens";
 
 export class Parser {
     
@@ -57,6 +57,18 @@ export class Parser {
     private _stringLiteral(): TokenStringLiteral {
         const value = this._advance("StringLiteral");
         return value as TokenStringLiteral;
+    }
+
+    private _range() : TokenRange {
+        const left = this._advance("Identifier");
+        this._advance("Colon");
+        const right = this._advance("Identifier");
+        return {
+            value: "",
+            left: String(left.value),
+            right: String(right.value),
+            type: "Range"
+        }
     }
 
     private _boolExpression(): BinaryExpression {
@@ -129,7 +141,10 @@ export class Parser {
             this._advance("RightParen");
             return expr;
         }
-        if(this._current().type == "Identifier") return this._functionCall();
+        if(this._current().type == "Identifier") {
+            if(this._expect('LeftParen')) return this._functionCall();
+            return this._range();
+        }
         throw new Error("Unexpected end of input");
     }
 

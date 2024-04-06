@@ -1,5 +1,6 @@
 export class ArgumentWrongType extends Error {
     constructor(argValue : any, type : string) {
-        super(`Argument ${argValue} is not ${type}`);
+        const argValueType = Array.isArray(argValue) ? 'range' : typeof argValue;
+        super(`Argument ${argValueType} is not a ${type}`);
     }
 }

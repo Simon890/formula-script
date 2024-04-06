@@ -1,5 +1,5 @@
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
     private _pos = 0;
@@ -18,7 +18,12 @@ export class Tokenizer {
                 this._tokens.push(identifier);
                 continue;
             }
-            if(this._isNumber(current) || this._isDecimalPoint(current)) {
+            if(this._isNumber(current)) {
+                const numberToken = this._numberOrIdentifier();
+                this._tokens.push(numberToken);
+                continue;
+            }
+            if(this._isDecimalPoint(current)) {
                 const numberToken = this._number();
                 this._tokens.push(numberToken);
                 continue;
@@ -41,6 +46,11 @@ export class Tokenizer {
             if(this._isSimpleQuote(current) || this._isDoubleQuote(current)) {
                 const stringToken = this._string(current);
                 this._tokens.push(stringToken);
+                continue;
+            }
+            if(this._isColon(current)) {
+                const colon = this._colon();
+                this._tokens.push(colon);
                 continue;
             }
 
@@ -159,6 +169,10 @@ export class Tokenizer {
         return REGEX.SIMPLE_QUOTE.test(value);
     }
 
+    private _isColon(value: string): boolean {
+        return REGEX.COLON.test(value);
+    }
+
     private _skipEmptySpace() {
         while(this._isEmptySpace(this._current())) {
             this._advance();
@@ -167,7 +181,7 @@ export class Tokenizer {
 
     private _identifier() : TokenIdentifier {
         let value = "";
-        while(this._isChar(this._current())) {
+        while(!this._isEOF() && (this._isChar(this._current()) || this._isNumber(this._current()))) {
             value += this._current();
             this._advance();
         }
@@ -194,6 +208,39 @@ export class Tokenizer {
             }
             value += this._current();
             this._advance();
+        }
+        return {
+            type: "NumberLiteral",
+            value: Number(value)
+        }
+    }
+
+    private _numberOrIdentifier() : TokenNumberLiteral | TokenIdentifier {
+        let value = "";
+        let hasDecimalPoint = false;
+        let isIdentifier = false;
+        
+        if(this._isDecimalPoint(this._current())) {
+            hasDecimalPoint = true;
+            value = this._current();
+            this._advance();
+        }
+
+        while(this._isNumber(this._current()) || this._isDecimalPoint(this._current())) {
+            if(!isIdentifier && hasDecimalPoint && this._isDecimalPoint(this._current())) throw new UnknownTokenError(this._current(), this._pos + 1);
+            if(this._isDecimalPoint(this._current())) {
+                hasDecimalPoint = true;
+            }
+            if(this._isChar(this._current())) {
+                isIdentifier = true;
+                value = String(value);
+            }
+            value += this._current();
+            this._advance();
+        }
+        if(isIdentifier) return {
+            type: "Identifier",
+            value
         }
         return {
             type: "NumberLiteral",
@@ -314,6 +361,16 @@ export class Tokenizer {
             value
         }
     }
+
+    private _colon(): TokenColon {
+        if(this._current() == ":") {
+            this._advance();
+        }
+        return {
+            type: "Colon",
+            value: ":"
+        }
+    }
     
 }
 
@@ -333,5 +390,6 @@ export const REGEX = Object.freeze({
     GT_OP: /[\>]/,
     LT_OP: /[\<]/,
     DOUBLE_QUOTE: /["]/,
-    SIMPLE_QUOTE: /[']/
+    SIMPLE_QUOTE: /[']/,
+    COLON: /[:]/
 });

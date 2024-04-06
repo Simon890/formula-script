@@ -2,6 +2,7 @@ import { Arguments } from "./Arguments";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
+import { NoHandlerSet } from "./errors/NoHandlerSet";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
 import { Choose } from "./func/Choose";
@@ -9,13 +10,16 @@ import { Random } from "./func/Random";
 import { Sum } from "./func/Sum";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
+import { RangeHandler } from "./RangeHandler";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenFunctionCall } from "./types/tokens";
+import { Range } from "./types/range";
+import { BinaryExpression, Token, TokenFunctionCall, TokenRange } from "./types/tokens";
 
 export class Interpreter {
     private _ast !: AST;
     private _registry : FunctionsRegistry;
+    private _rangeHandler ?: RangeHandler | null;
 
     constructor() {
         this._registry = new FunctionsRegistry();
@@ -52,6 +56,10 @@ export class Interpreter {
         return expr;
     }
 
+    public setRangeHandler(handler : RangeHandler) {
+        this._rangeHandler = handler;
+    }
+
     private _binaryExpression(token : Token) : number | boolean | string {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
@@ -79,10 +87,17 @@ export class Interpreter {
         return leftExpression + rightExpression;
     }
 
+    private _range(token : TokenRange) : Range {
+        if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoHandlerSet();
+        return this._rangeHandler.handle(token.left, token.right);
+    }
+
     private _functionCall(token: TokenFunctionCall) : number | string | boolean {
         const identifier = token.value;
         const args = token.args.map(arg => {
             if(arg.type == "FunctionCall") return this._functionCall(arg);
+            if(arg.type == "Range") return this._range(arg);
+            if(arg.type == "BinaryExpression") return this._binaryExpression(arg);
             return arg.value;
         });
         const formulaFunction = this._registry.get(identifier);

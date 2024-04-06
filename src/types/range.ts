@@ -1,0 +1,1 @@
+export type Range = Array<string | boolean | number>
