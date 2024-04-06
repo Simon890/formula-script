@@ -14,13 +14,13 @@ import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
-import { Range } from "./types/range";
+import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
 import { BinaryExpression, Token, TokenFunctionCall, TokenRange } from "./types/tokens";
 
 export class Interpreter {
     private _ast !: AST;
     private _registry : FunctionsRegistry;
-    private _rangeHandler ?: RangeHandler | null;
+    private _rangeHandler ?: ObjectRangeHandler | null;
 
     constructor() {
         this._registry = new FunctionsRegistry();
@@ -58,8 +58,9 @@ export class Interpreter {
         return expr;
     }
 
-    public setRangeHandler(handler : RangeHandler) {
-        this._rangeHandler = handler;
+    public setRangeHandler(handler : RangeHandlerClassFunction) {
+        if(handler instanceof RangeHandler) this._rangeHandler = handler;
+        else this._rangeHandler = {handle: handler};
     }
 
     private _binaryExpression(token : Token) : number | boolean | string {
