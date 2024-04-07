@@ -1,8 +1,9 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
+import { ValidType } from "../types/validTypes";
 
 export class Mode extends FormulaFunction {
-    call(args: Arguments): string | number | boolean {
+    call(args: Arguments): ValidType {
         const frequency : any = {};
         for (let i = 0; i < args.length; i++) {
             const num = args.asNumber(i);

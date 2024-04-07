@@ -2,9 +2,10 @@ import { Arguments } from "../Arguments";
 import { NumberCannotBeCastedToBool } from "../errors/NumberCannotBeCastedToBool";
 import { FormulaFunction } from "../FormulaFunction";
 import { RangeArray } from "../RangeArray";
+import { ValidType } from "../types/validTypes";
 
 export class Bool extends FormulaFunction {
-    call(args: Arguments): string | number | boolean {
+    call(args: Arguments): ValidType {
         const value = args.asAny(0);
         if(value instanceof RangeArray) throw new RangeArrayCannotBeCasted('boolean');
         if(value == "1" || value == 1) return true;

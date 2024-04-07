@@ -1,9 +1,10 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
 import { RangeArray } from "../RangeArray";
+import { ValidType } from "../types/validTypes";
 
 export class Num extends FormulaFunction {
-    call(args: Arguments): string | number | boolean {
+    call(args: Arguments): ValidType {
         const value = args.asAny(0);
         if(value instanceof RangeArray) throw new RangeArrayCannotBeCasted('number');
         if(typeof value == "string" && Number.isNaN(Number(value))) throw new Error("JFKDSL");

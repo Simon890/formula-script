@@ -1,4 +1,5 @@
 import { Arguments } from "./Arguments";
+import { ValidType } from "./types/validTypes";
 
 export abstract class FormulaFunction {
     
@@ -7,7 +8,7 @@ export abstract class FormulaFunction {
      * @param args list of arguments.
      * @returns a string, number or boolean.
      */
-    abstract call(args : Arguments) : string | number | boolean;
+    abstract call(args : Arguments) : ValidType;
 
     /**
      * Defines the amount of parameter the function must have.

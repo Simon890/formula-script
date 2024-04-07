@@ -1,0 +1,1 @@
+export type ValidType = string | number | boolean | Date;

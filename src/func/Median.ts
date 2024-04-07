@@ -1,8 +1,9 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
+import { ValidType } from "../types/validTypes";
 
 export class Median extends FormulaFunction {
-    call(args: Arguments): string | number | boolean {
+    call(args: Arguments): ValidType {
         let numbers : number[] = [];
         for (let i = 0; i < args.length; i++) {
             numbers.push(args.asNumber(i));

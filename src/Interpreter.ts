@@ -1,5 +1,6 @@
 import { Arguments } from "./Arguments";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
+import { CantAddDateValue } from "./errors/CantAddDateValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoHandlerSet } from "./errors/NoHandlerSet";
@@ -10,6 +11,7 @@ import { AvgRange } from "./func/AvgRange";
 import { Bool } from "./func/Bool";
 import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
+import { DateFunction } from "./func/DateFunction";
 import { If } from "./func/If";
 import { Max } from "./func/Max";
 import { Median } from "./func/Median";
@@ -30,6 +32,7 @@ import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
 import { BinaryExpression, Token, TokenFunctionCall, TokenRange } from "./types/tokens";
+import { ValidType } from "./types/validTypes";
 
 export class Interpreter {
     private _ast !: AST;
@@ -57,6 +60,7 @@ export class Interpreter {
         this._registry.register("STR", new Str);
         this._registry.register("NUM", new Num);
         this._registry.register("BOOL", new Bool);
+        this._registry.register("DATE", new DateFunction);
     }
     
     /**
@@ -71,7 +75,7 @@ export class Interpreter {
             const parser = new Parser(tokenizer.tokenize());
             this._ast = parser.parse();
         }
-        let expr : string | number | boolean | null = null;
+        let expr : ValidType | null = null;
         for (let i = 0; i < this._ast.body.length; i++) {
             const token = this._ast.body[i];
             if(token.type == "NumberLiteral") {
@@ -116,9 +120,9 @@ export class Interpreter {
     /**
      * Resolve a binary expression.
      * @param token Token.
-     * @returns number or string or boolean.
+     * @returns ValidType.
      */
-    private _binaryExpression(token : Token) : number | boolean | string {
+    private _binaryExpression(token : Token) : ValidType {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
         if(token.type == "FunctionCall") return this._functionCall(token);
@@ -147,6 +151,8 @@ export class Interpreter {
         const rightExpression = this._binaryExpression(token.right);
         if(this._isBoolean(leftExpression)) throw new CantAddBoolValue();
         if(this._isBoolean(rightExpression)) throw new CantAddBoolValue();
+        if(this._isDate(leftExpression)) throw new CantAddDateValue();
+        if(this._isDate(rightExpression)) throw new CantAddDateValue();
         if(this._isString(leftExpression) || this._isString(rightExpression)) return String(leftExpression) + String(rightExpression);
         return leftExpression + rightExpression;
     }
@@ -164,9 +170,9 @@ export class Interpreter {
     /**
      * Performs a function call and return its value.
      * @param token TokenFunctionCall.
-     * @returns number | string | boolean.
+     * @returns ValidType.
      */
-    private _functionCall(token: TokenFunctionCall) : number | string | boolean {
+    private _functionCall(token: TokenFunctionCall) : ValidType {
         const identifier = token.value;
         const args = token.args.map(arg => {
             if(arg.type == "FunctionCall") return this._functionCall(arg);
@@ -212,5 +218,14 @@ export class Interpreter {
      */
     private _isBoolean(val: any) : val is boolean {
         return typeof val == "boolean";
+    }
+
+    /**
+     * Checks whether the value is date type.
+     * @param val any.
+     * @returns true if it's a Date.
+     */
+    private _isDate(val: any): val is Date {
+        return val instanceof Date;
     }
 }
