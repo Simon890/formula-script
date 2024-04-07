@@ -25,6 +25,7 @@ import { Sqrt } from "./func/Sqrt";
 import { Str } from "./func/Str";
 import { Sum } from "./func/Sum";
 import { SumRange } from "./func/SumRange";
+import { Today } from "./func/Today";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
@@ -61,6 +62,7 @@ export class Interpreter {
         this._registry.register("NUM", new Num);
         this._registry.register("BOOL", new Bool);
         this._registry.register("DATE", new DateFunction);
+        this._registry.register("TODAY", new Today);
     }
     
     /**
