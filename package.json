@@ -1,6 +1,6 @@
 {
   "name": "formula-script",
-  "version": "1.0.2",
+  "version": "1.1.1",
   "description": "Spreadsheet language",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -42,5 +42,8 @@
     "jest": "^29.7.0",
     "tsup": "^8.0.2",
     "typescript": "^5.4.4"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.10"
   }
 }
