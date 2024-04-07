@@ -7,4 +7,7 @@ export class If extends FormulaFunction {
         if(condition) return args.asAny(1);
         return args.asAny(2)
     }
+    public numParams(): number | null | undefined {
+        return 3;
+    }
 }
