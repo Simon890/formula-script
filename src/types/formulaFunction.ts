@@ -2,5 +2,5 @@ import { Arguments } from "../Arguments"
 
 export type ObjectFormulaFunction = {
     call: (args: Arguments) => string | number | boolean,
-    numParams: undefined | (() => number | null | undefined)
+    numParams: (() => number | null | undefined) | (number | null | undefined)
 }

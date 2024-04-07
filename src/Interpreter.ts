@@ -3,6 +3,7 @@ import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoHandlerSet } from "./errors/NoHandlerSet";
+import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
 import { AvgRange } from "./func/AvgRange";
@@ -127,8 +128,10 @@ export class Interpreter {
         });
         const formulaFunction = this._registry.get(identifier);
         let numParams = undefined;
-        if(formulaFunction.numParams) {
-            numParams = formulaFunction.numParams();
+        if(formulaFunction instanceof FormulaFunction) numParams = formulaFunction.numParams();
+        else if(formulaFunction.numParams) {
+            if(typeof formulaFunction.numParams == "function") numParams = formulaFunction.numParams();
+            else numParams = formulaFunction.numParams;
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
             return formulaFunction.call(new Arguments(args));
