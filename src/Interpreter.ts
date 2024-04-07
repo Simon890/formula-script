@@ -14,8 +14,10 @@ import { Max } from "./func/Max";
 import { Median } from "./func/Median";
 import { Min } from "./func/Min";
 import { Mode } from "./func/Mode";
+import { Pow } from "./func/Pow";
 import { Random } from "./func/Random";
 import { Round } from "./func/Round";
+import { Sqrt } from "./func/Sqrt";
 import { Sum } from "./func/Sum";
 import { SumRange } from "./func/SumRange";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -47,6 +49,8 @@ export class Interpreter {
         this._registry.register("ROUND", new Round);
         this._registry.register("MEDIAN", new Median);
         this._registry.register("MODE", new Mode);
+        this._registry.register("POW", new Pow);
+        this._registry.register("SQRT", new Sqrt);
     }
     
     public run(str : string, rebuildAST = true) {
