@@ -8,7 +8,13 @@ import { Avg } from "./func/Avg";
 import { AvgRange } from "./func/AvgRange";
 import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
+import { If } from "./func/If";
+import { Max } from "./func/Max";
+import { Median } from "./func/Median";
+import { Min } from "./func/Min";
+import { Mode } from "./func/Mode";
 import { Random } from "./func/Random";
+import { Round } from "./func/Round";
 import { Sum } from "./func/Sum";
 import { SumRange } from "./func/SumRange";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -34,6 +40,12 @@ export class Interpreter {
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
         this._registry.register("CHOOSERANGE", new ChooseRange);
+        this._registry.register("MAX", new Max);
+        this._registry.register("MIN", new Min);
+        this._registry.register("IF", new If);
+        this._registry.register("ROUND", new Round);
+        this._registry.register("MEDIAN", new Median);
+        this._registry.register("MODE", new Mode);
     }
     
     public run(str : string, rebuildAST = true) {
@@ -119,7 +131,7 @@ export class Interpreter {
             numParams = formulaFunction.numParams();
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
-            return formulaFunction.exec(new Arguments(args));
+            return formulaFunction.call(new Arguments(args));
     }
 
     private _checkNumeric(val: any) : number {
