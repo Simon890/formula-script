@@ -59,6 +59,12 @@ export class Interpreter {
         this._registry.register("BOOL", new Bool);
     }
     
+    /**
+     * Interprets the code.
+     * @param str code.
+     * @param rebuildAST True if it's needed to rebuild de AST.
+     * @returns an expression.
+     */
     public run(str : string, rebuildAST = true) {
         if(rebuildAST || this._ast == null) {
             const tokenizer = new Tokenizer(str);
@@ -91,15 +97,27 @@ export class Interpreter {
         return expr;
     }
 
+    /**
+     * Set the range handler to use.
+     * @param handler A function or a class that extends RangeHandler class.
+     */
     public setRangeHandler(handler : RangeHandlerClassFunction) {
         if(handler instanceof RangeHandler) this._rangeHandler = handler;
         else this._rangeHandler = {handle: handler};
     }
 
+    /**
+     * FunctionsRegistry
+     */
     public get registry() {
         return this._registry;
     }
 
+    /**
+     * Resolve a binary expression.
+     * @param token Token.
+     * @returns number or string or boolean.
+     */
     private _binaryExpression(token : Token) : number | boolean | string {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
@@ -119,6 +137,11 @@ export class Interpreter {
         throw new Error(`Unexpected token ${token.type}`);
     }
 
+    /**
+     * Interprets an addition.
+     * @param token BinaryExpression.
+     * @returns number or string.
+     */
     private __addition(token: BinaryExpression) : number | string {
         const leftExpression = this._binaryExpression(token.left);
         const rightExpression = this._binaryExpression(token.right);
@@ -128,11 +151,21 @@ export class Interpreter {
         return leftExpression + rightExpression;
     }
 
+    /**
+     * Interprets a range and return its value by using the RangeHandler.
+     * @param token TokenRange.
+     * @returns Range.
+     */
     private _range(token : TokenRange) : Range {
         if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoHandlerSet();
         return this._rangeHandler.handle(token.left, token.right);
     }
 
+    /**
+     * Performs a function call and return its value.
+     * @param token TokenFunctionCall.
+     * @returns number | string | boolean.
+     */
     private _functionCall(token: TokenFunctionCall) : number | string | boolean {
         const identifier = token.value;
         const args = token.args.map(arg => {
@@ -152,15 +185,31 @@ export class Interpreter {
             return formulaFunction.call(new Arguments(args));
     }
 
+    /**
+     * Checks whether the value is a number. If not it throws an error.
+     * @param val any.
+     * @throws ExpectedValueNotMatch.
+     * @returns the value passed as argument.
+     */
     private _checkNumeric(val: any) : number {
         if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val);
         return val;
     }
 
+    /**
+     * Checks whether the value is string type.
+     * @param val any.
+     * @returns true if it's a string.
+     */
     private _isString(val : any) : val is string {
         return typeof val == "string";
     }
 
+    /**
+     * Checks whether the value is boolean type.
+     * @param val any.
+     * @returns true if it's a boolean.
+     */
     private _isBoolean(val: any) : val is boolean {
         return typeof val == "boolean";
     }

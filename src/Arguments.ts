@@ -12,6 +12,12 @@ export class Arguments {
         return this._values.length
     }
 
+    /**
+     * Checks whether the index exists and if its element is of type boolean.
+     * @param index argument position.
+     * @throws ArgumentWrongType.
+     * @returns a boolean.
+     */
     public asBool(index : number) : boolean {
         this._checkIndex(index);
         const value = this._values[index];
@@ -19,6 +25,12 @@ export class Arguments {
         return value;
     }
 
+    /**
+     * Checks whether the index exists and if its element is of type string.
+     * @param index argument position.
+     * @throws ArgumentWrongType.
+     * @returns a string.
+     */
     public asString(index : number) : string {
         this._checkIndex(index);
         const value = this._values[index];
@@ -26,6 +38,12 @@ export class Arguments {
         return value;
     }
 
+    /**
+     * Checks whether the index exists and if its element is of type number.
+     * @param index argument position.
+     * @throws ArgumentWrongType.
+     * @returns a number.
+     */
     public asNumber(index : number) : number {
         this._checkIndex(index);
         const value = this._values[index];
@@ -33,11 +51,22 @@ export class Arguments {
         return value;
     }
 
+    /**
+     * Checks whether the index exists and doesn't check the type.
+     * @param index argument position.
+     * @returns any.
+     */
     public asAny(index : number) : any {
         this._checkIndex(index);
         return this._values[index];
     }
 
+    /**
+     * Checks whether the index exists and if its element is of type Range.
+     * @param index argument position.
+     * @throws ArgumentWrongType.
+     * @returns a RangeArray.
+     */
     public asRange(index : number) : RangeArray {
         this._checkIndex(index);
         const value = this._values[index];
@@ -45,6 +74,10 @@ export class Arguments {
         return new RangeArray(value);
     }
 
+    /**
+     * Checks whether the index exists in array.
+     * @param index argument position.
+     */
     private _checkIndex(index : number) {
         if(!(index in this._values)) throw new ArgumentDoesNotExist(index);
     }

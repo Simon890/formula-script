@@ -2,12 +2,22 @@ import { UnknownTokenError } from "./errors/UnknownToken";
 import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
+    /**
+     * Current position in string.
+     */
     private _pos = 0;
+    /**
+     * Generated tokens.
+     */
     private _tokens : Token[] = [];
     constructor(private _text : string) {
 
     }
 
+    /**
+     * Iterates over a string and generates tokens.
+     * @returns Array of tokens.
+     */
     public tokenize() : Token[] {
         this._tokens = [];
         while(!this._isEOF()) {
@@ -104,100 +114,210 @@ export class Tokenizer {
         return this._tokens;
     }
 
+    /**
+     * @returns the current character.
+     */
     private _current() : string {
         return this._text[this._pos];
     }
 
+    /**
+     * Moves to the next character.
+     */
     private _advance() {
         this._pos++;
     }
 
+    /**
+     * @returns true if it's at the end of the string
+     */
     private _isEOF() : boolean {
         return this._pos >= this._text.length;
     }
 
+    /**
+     * Checks whether the string is a character.
+     * @param value string.
+     * @returns true if it's a character.
+     */
     private _isChar(value : string) : boolean {
         return REGEX.CHAR.test(value);
     }
 
+    /**
+     * Checks whether the string is a number.
+     * @param value string.
+     * @returns true if it's a number.
+     */
     private _isNumber(value: string): boolean {
         return REGEX.NUMBER.test(value);
     }
 
+    /**
+     * Checks whether the string is a left parenthesis.
+     * @param value string.
+     * @returns true if it's a left parenthesis.
+     */
     private _isLeftParen(value: string): boolean {
         return REGEX.LEFT_PAREN.test(value);
     }
 
+    /**
+     * Checks whether the string is a right parenthesis.
+     * @param value string.
+     * @returns true if it's a right parenthesis.
+     */
     private _isRightParen(value: string): boolean {
         return REGEX.RIGHT_PAREN.test(value);
     }
 
+    /**
+     * Checks whether the string is a comma.
+     * @param value string.
+     * @returns true if it's a comma.
+     */
     private _isComma(value: string): boolean {
         return REGEX.COMMA.test(value);
     }
 
+    /**
+     * Checks whether the string is an empty space.
+     * @param value string.
+     * @returns true if it's a space, tab or line break.
+     */
     private _isEmptySpace(value: string): boolean {
         return REGEX.EMPTY_SPACE.test(value);
     }
 
+    /**
+     * Checks whether the string is a decimal point.
+     * @param value string.
+     * @returns true if it's a decimal point.
+     */
     private _isDecimalPoint(value: string): boolean {
         return REGEX.DECIMAL.test(value);
     }
 
+    /**
+     * Checks whether the string is an underscore.
+     * @param value string.
+     * @returns true if it's an underscore.
+     */
     private _isUnderscore(value: string): boolean {
         return REGEX.UNDERSCORE.test(value);
     }
 
+    /**
+     * Checks whether the string is a plus sign.
+     * @param value string.
+     * @returns true if it's a plus sign.
+     */
     private _isAddOp(value: string): boolean {
         return REGEX.ADD_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a minus sign.
+     * @param value string.
+     * @returns true if it's a minus sign.
+     */
     private _isSubOp(value: string): boolean {
         return REGEX.SUB_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a multiplier operator.
+     * @param value string.
+     * @returns true if it's a multiplier operator.
+     */
     private _isMultOp(value: string): boolean {
         return REGEX.MULT_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a divisor operator.
+     * @param value string.
+     * @returns true if it's a divisor operator.
+     */
     private _isDivOp(value: string): boolean {
         return REGEX.DIV_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is an equal operator.
+     * @param value string.
+     * @returns true if it's an equal operator.
+     */
     private _isEqOp(value: string): boolean {
         return REGEX.EQ_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is an equal operator.
+     * @param value string.
+     * @returns true if it's a not equal operator.
+     */
     private _isNotEqOp(value: string): boolean {
         return REGEX.NOT_EQ_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a greater than operator.
+     * @param value string.
+     * @returns true if it's a greater than operator.
+     */
     private _isGtOp(value: string): boolean {
         return REGEX.GT_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a less than operator.
+     * @param value string.
+     * @returns true if it's a less than operator.
+     */
     private _isLtOp(value: string): boolean {
         return REGEX.LT_OP.test(value);
     }
 
+    /**
+     * Checks whether the string is a double quote.
+     * @param value string.
+     * @returns true if it's a double quote.
+     */
     private _isDoubleQuote(value: string): boolean {
         return REGEX.DOUBLE_QUOTE.test(value);
     }
 
+    /**
+     * Checks whether the string is a simple quote.
+     * @param value string.
+     * @returns true if it's a simple quote.
+     */
     private _isSimpleQuote(value: string): boolean {
         return REGEX.SIMPLE_QUOTE.test(value);
     }
 
+    /**
+     * Checks whether the string is a colon.
+     * @param value string.
+     * @returns true if it's a colon.
+     */
     private _isColon(value: string): boolean {
         return REGEX.COLON.test(value);
     }
 
+    /**
+     * Skips empty spaces and moves the position.
+     */
     private _skipEmptySpace() {
         while(this._isEmptySpace(this._current())) {
             this._advance();
         }
     }
 
+    /**
+     * @returns TokenIdentifier
+     */
     private _identifier() : TokenIdentifier {
         let value = "";
         while(!this._isEOF() && (this._isChar(this._current()) || this._isNumber(this._current()) || this._isDecimalPoint(this._current()) || this._isUnderscore(this._current()))) {
@@ -210,6 +330,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenNumberLiteral
+     */
     private _number(): TokenNumberLiteral {
         let value = "";
         let hasDecimalPoint = false;
@@ -234,6 +357,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenNumberLiteral | TokenIdentifier
+     */
     private _numberOrIdentifier() : TokenNumberLiteral | TokenIdentifier {
         let value = "";
         let hasDecimalPoint = false;
@@ -267,6 +393,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenLeftParen
+     */
     private _leftParen() : TokenLeftParen {
         if(this._isLeftParen(this._current())) {
             this._advance();
@@ -277,6 +406,9 @@ export class Tokenizer {
         }
     }
     
+    /**
+     * @returns TokenRightParen
+     */
     private _rightParen() : TokenRightParen {
         if(this._isRightParen(this._current())) {
             this._advance();
@@ -287,6 +419,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenComma
+     */
     private _comma() : TokenComma {
         if(this._isComma(this._current())) {
             this._advance();
@@ -297,6 +432,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenAddOp
+     */
     private _addOp(): TokenAddOp {
         if(this._isAddOp(this._current())) {
             this._advance();
@@ -307,6 +445,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenSubOp
+     */
     private _subOp(): TokenSubOp {
         if(this._isSubOp(this._current())) {
             this._advance();
@@ -317,6 +458,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenMultOp
+     */
     private _multOp(): TokenMultOp {
         if(this._isMultOp(this._current())) {
             this._advance();
@@ -327,6 +471,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenDivOp
+     */
     private _divOp(): TokenDivOp {
         if(this._isDivOp(this._current())) {
             this._advance();
@@ -337,6 +484,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenEqOp
+     */
     private _eqOp() : TokenEqOp {
         if(this._isEqOp(this._current())) {
             this._advance();
@@ -347,6 +497,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenNotEqOp
+     */
     private _notEqOp() : TokenNotEqOp {
         if(this._isNotEqOp(this._current())) {
             this._advance();
@@ -358,6 +511,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenGtOp
+     */
     private _gtOp(): TokenGtOp {
         if(this._isGtOp(this._current())) {
             this._advance();
@@ -368,6 +524,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenLtOp
+     */
     private _ltOp(): TokenLtOp {
         if(this._isLtOp(this._current())) {
             this._advance();
@@ -378,6 +537,10 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @param quote Double quote or single quote.
+     * @returns TokenStringLiteral.
+     */
     private _string(quote : string) : TokenStringLiteral {
         this._advance();
         let value = "";
@@ -392,6 +555,9 @@ export class Tokenizer {
         }
     }
 
+    /**
+     * @returns TokenColon
+     */
     private _colon(): TokenColon {
         if(this._current() == ":") {
             this._advance();
@@ -404,6 +570,9 @@ export class Tokenizer {
     
 }
 
+/**
+ * Regular expressions.
+ */
 export const REGEX = Object.freeze({
     CHAR: /[a-zA-Z]/,
     NUMBER: /[0-9]/,
