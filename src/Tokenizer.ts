@@ -1,3 +1,4 @@
+import { UnexpectedEndOfInput } from "./errors/UnexpectedEndOfInput";
 import { UnknownTokenError } from "./errors/UnknownToken";
 import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
@@ -545,6 +546,7 @@ export class Tokenizer {
         this._advance();
         let value = "";
         while(this._current() != quote) {
+            if(this._isEOF()) throw new UnexpectedEndOfInput();
             value += this._current();
             this._advance();
         }
