@@ -144,6 +144,10 @@ export class Tokenizer {
         return REGEX.DECIMAL.test(value);
     }
 
+    private _isUnderscore(value: string): boolean {
+        return REGEX.UNDERSCORE.test(value);
+    }
+
     private _isAddOp(value: string): boolean {
         return REGEX.ADD_OP.test(value);
     }
@@ -196,7 +200,7 @@ export class Tokenizer {
 
     private _identifier() : TokenIdentifier {
         let value = "";
-        while(!this._isEOF() && (this._isChar(this._current()) || this._isNumber(this._current()))) {
+        while(!this._isEOF() && (this._isChar(this._current()) || this._isNumber(this._current()) || this._isDecimalPoint(this._current()) || this._isUnderscore(this._current()))) {
             value += this._current();
             this._advance();
         }
@@ -418,5 +422,6 @@ export const REGEX = Object.freeze({
     LT_OP: /[\<]/,
     DOUBLE_QUOTE: /["]/,
     SIMPLE_QUOTE: /[']/,
-    COLON: /[:]/
+    COLON: /[:]/,
+    UNDERSCORE: /[\_]/
 });

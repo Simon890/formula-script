@@ -1,3 +1,4 @@
+import { BoolLiteralCannotBeCalled } from "./errors/BoolLiteralCannotBeCalled";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
 import { BinaryExpression, Token, TokenBoolLiteral, TokenFunctionCall, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenType } from "./types/tokens";
@@ -134,7 +135,10 @@ export class Parser {
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
         if(this._current().type == "StringLiteral") return this._stringLiteral();
-        if(this._current().type == "BoolLiteral") return this._boolLiteral();
+        if(this._current().type == "BoolLiteral") {
+            if(this._expect("LeftParen")) throw new BoolLiteralCannotBeCalled(this._current().value ? "TRUE" : "FALSE");
+            return this._boolLiteral();
+        }
         if(this._current().type == "AddOp" || this._current().type == "SubOp") {
             const mathOp = this._advance();
             const numberLiteral = this._numberLiteral();

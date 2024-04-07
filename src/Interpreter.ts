@@ -7,6 +7,7 @@ import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
 import { AvgRange } from "./func/AvgRange";
+import { Bool } from "./func/Bool";
 import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
 import { If } from "./func/If";
@@ -14,10 +15,12 @@ import { Max } from "./func/Max";
 import { Median } from "./func/Median";
 import { Min } from "./func/Min";
 import { Mode } from "./func/Mode";
+import { Num } from "./func/Num";
 import { Pow } from "./func/Pow";
 import { Random } from "./func/Random";
 import { Round } from "./func/Round";
 import { Sqrt } from "./func/Sqrt";
+import { Str } from "./func/Str";
 import { Sum } from "./func/Sum";
 import { SumRange } from "./func/SumRange";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -51,6 +54,9 @@ export class Interpreter {
         this._registry.register("MODE", new Mode);
         this._registry.register("POW", new Pow);
         this._registry.register("SQRT", new Sqrt);
+        this._registry.register("STR", new Str);
+        this._registry.register("NUM", new Num);
+        this._registry.register("BOOL", new Bool);
     }
     
     public run(str : string, rebuildAST = true) {
