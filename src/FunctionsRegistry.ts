@@ -16,6 +16,12 @@ export class FunctionsRegistry {
         this._functions.delete(name);
     }
 
+    public rename(name: string, newName: string) {
+        const formulaFunction = this.get(name);
+        this.remove(name);
+        this.register(newName, formulaFunction);
+    }
+
     public get(name: string) : FormulaFunction | ObjectFormulaFunction {
         if(this._functions.has(name)) return this._functions.get(name)!;
         throw new FunctionDoesNotExist(name);
