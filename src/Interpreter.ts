@@ -70,6 +70,10 @@ export class Interpreter {
                 expr = String(token.value);
                 continue;
             }
+            if(token.type == "BoolLiteral") {
+                expr = Boolean(token.value);
+                continue;
+            }
             if(token.type == "BinaryExpression") {
                 expr = this._binaryExpression(token);
                 continue;
@@ -104,6 +108,7 @@ export class Interpreter {
             if(token.operator == "<") return this._binaryExpression(token.left) < this._binaryExpression(token.right);
             if(token.operator == ">=") return this._binaryExpression(token.left) >= this._binaryExpression(token.right);
             if(token.operator == "<=") return this._binaryExpression(token.left) <= this._binaryExpression(token.right);
+            if(token.operator == "!=") return this._binaryExpression(token.left) != this._binaryExpression(token.right);
         }
         throw new Error(`Unexpected token ${token.type}`);
     }

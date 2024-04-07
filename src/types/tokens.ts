@@ -8,6 +8,11 @@ export type TokenNumberLiteral = {
     value: number
 }
 
+export type TokenBoolLiteral = {
+    type: "BoolLiteral",
+    value: boolean
+}
+
 export type TokenStringLiteral = {
     type: "StringLiteral",
     value: string
@@ -60,6 +65,11 @@ export type TokenEqOp = {
     value: "=" | string
 }
 
+export type TokenNotEqOp = {
+    type: "NotEqOp",
+    value: "!=" | string
+}
+
 export type TokenGtOp = {
     type: "GtOp",
     value: ">" | string
@@ -96,6 +106,6 @@ export type BinaryExpression = {
 
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenStringLiteral | TokenColon | TokenRange;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange;
 
 export type TokenType = Token["type"];

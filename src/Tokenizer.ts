@@ -1,5 +1,5 @@
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
     private _pos = 0;
@@ -15,7 +15,14 @@ export class Tokenizer {
             const current = this._current();
             if(this._isChar(current)) {
                 const identifier = this._identifier();
-                this._tokens.push(identifier);
+                if(identifier.value == "TRUE" || identifier.value == "FALSE") {
+                    this._tokens.push({
+                        type: "BoolLiteral",
+                        value: identifier.value == "TRUE"
+                    });
+                } else {
+                    this._tokens.push(identifier);
+                }
                 continue;
             }
             if(this._isNumber(current)) {
@@ -73,6 +80,10 @@ export class Tokenizer {
             }
             if(this._isEqOp(current)) {
                 this._tokens.push(this._eqOp());
+                continue;
+            }
+            if(this._isNotEqOp(current)) {
+                this._tokens.push(this._notEqOp());
                 continue;
             }
             if(this._isGtOp(current)) {
@@ -151,6 +162,10 @@ export class Tokenizer {
 
     private _isEqOp(value: string): boolean {
         return REGEX.EQ_OP.test(value);
+    }
+
+    private _isNotEqOp(value: string): boolean {
+        return REGEX.NOT_EQ_OP.test(value);
     }
 
     private _isGtOp(value: string): boolean {
@@ -328,6 +343,17 @@ export class Tokenizer {
         }
     }
 
+    private _notEqOp() : TokenNotEqOp {
+        if(this._isNotEqOp(this._current())) {
+            this._advance();
+            this._advance();
+        }
+        return {
+            type: "NotEqOp",
+            value: "!="
+        }
+    }
+
     private _gtOp(): TokenGtOp {
         if(this._isGtOp(this._current())) {
             this._advance();
@@ -387,6 +413,7 @@ export const REGEX = Object.freeze({
     MULT_OP: /[\*]/,
     DIV_OP: /[\/]/,
     EQ_OP: /[\=]/,
+    NOT_EQ_OP: /[!=]/,
     GT_OP: /[\>]/,
     LT_OP: /[\<]/,
     DOUBLE_QUOTE: /["]/,

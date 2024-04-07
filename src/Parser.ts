@@ -1,6 +1,6 @@
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenFunctionCall, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenType } from "./types/tokens";
+import { BinaryExpression, Token, TokenBoolLiteral, TokenFunctionCall, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenType } from "./types/tokens";
 
 export class Parser {
     
@@ -59,6 +59,11 @@ export class Parser {
         return value as TokenStringLiteral;
     }
 
+    private _boolLiteral() : TokenBoolLiteral {
+        const value = this._advance("BoolLiteral");
+        return value as TokenBoolLiteral;
+    }
+
     private _range() : TokenRange {
         const left = this._advance("Identifier");
         this._advance("Colon");
@@ -73,7 +78,7 @@ export class Parser {
 
     private _boolExpression(): BinaryExpression {
         let left : Token = this._sumExpression();
-        while(!this._isEOF() && (this._current().value == "=" || this._current().value == ">" || this._current().value == "<")) {
+        while(!this._isEOF() && (this._current().value == "=" || this._current().value == ">" || this._current().value == "<" || this._current().value == "!=")) {
             const boolToken = this._advance(this._current().type);
             let operator = boolToken.value as string;
             if(this._current().value == "=" || this._current().value == ">" || this._current().value == "<") {
@@ -129,6 +134,7 @@ export class Parser {
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
         if(this._current().type == "StringLiteral") return this._stringLiteral();
+        if(this._current().type == "BoolLiteral") return this._boolLiteral();
         if(this._current().type == "AddOp" || this._current().type == "SubOp") {
             const mathOp = this._advance();
             const numberLiteral = this._numberLiteral();
