@@ -11,12 +11,15 @@ import { AvgRange } from "./func/AvgRange";
 import { Bool } from "./func/Bool";
 import { Choose } from "./func/Choose";
 import { ChooseRange } from "./func/ChooseRange";
+import { Concat } from "./func/Concat";
 import { DateFunction } from "./func/DateFunction";
+import { Day } from "./func/Day";
 import { If } from "./func/If";
 import { Max } from "./func/Max";
 import { Median } from "./func/Median";
 import { Min } from "./func/Min";
 import { Mode } from "./func/Mode";
+import { Month } from "./func/Month";
 import { Num } from "./func/Num";
 import { Pow } from "./func/Pow";
 import { Random } from "./func/Random";
@@ -26,6 +29,7 @@ import { Str } from "./func/Str";
 import { Sum } from "./func/Sum";
 import { SumRange } from "./func/SumRange";
 import { Today } from "./func/Today";
+import { Year } from "./func/Year";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
@@ -63,6 +67,10 @@ export class Interpreter {
         this._registry.register("BOOL", new Bool);
         this._registry.register("DATE", new DateFunction);
         this._registry.register("TODAY", new Today);
+        this._registry.register("YEAR", new Year);
+        this._registry.register("MONTH", new Month);
+        this._registry.register("DAY", new Day);
+        this._registry.register("CONCAT", new Concat);
     }
     
     /**

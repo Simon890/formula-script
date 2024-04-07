@@ -51,6 +51,13 @@ export class Arguments {
         return value;
     }
 
+    public asDate(index : number) : Date {
+        this._checkIndex(index);
+        const value = this._values[index];
+        if(!(value instanceof Date)) throw new ArgumentWrongType(value, "date");
+        return value;
+    }
+
     /**
      * Checks whether the index exists and doesn't check the type.
      * @param index argument position.
