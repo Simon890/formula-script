@@ -58,6 +58,19 @@ export class RangeArray {
     }
 
     /**
+     * Checks whether the index exists and if its element is of type date.
+     * @param index argument position.
+     * @throws RangeElementWrongType.
+     * @returns date.
+     */
+    public asDate(index : number) : Date {
+        this._checkIndex(index);
+        const value = this._range[index];
+        if(!(value instanceof Date)) throw new RangeElementWrongType(index, "date");
+        return value;
+    }
+
+    /**
      * Checks whether the index exists and doesn't check the type.
      * @param index argument position.
      * @throws RangeElementWrongType.

@@ -1,6 +1,7 @@
 import { RangeHandler } from "../RangeHandler"
+import { ValidType } from "./validTypes";
 
-export type Range = Array<string | boolean | number>;
+export type Range = Array<ValidType>;
 
 export type RangeHandlerFunction = (left : string, right : string) => Range;
 
