@@ -150,6 +150,7 @@ export class Interpreter {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
         if(token.type == "FunctionCall") return this._functionCall(token);
+        if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "BinaryExpression") {
             if(token.operator == "+") return this.__addition(token);
             if(token.operator == "-") return this._checkNumeric(this._binaryExpression(token.left)) - this._checkNumeric(this._binaryExpression(token.right));
