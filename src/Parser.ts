@@ -153,7 +153,8 @@ export class Parser {
         }
         if(this._current().type == "Identifier") {
             if(this._expect('LeftParen')) return this._functionCall();
-            return this._range();
+            if(this._expect("Colon")) return this._range();
+            return this._advance("Identifier");
         }
         throw new Error("Unexpected end of input");
     }

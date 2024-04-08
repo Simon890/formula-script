@@ -3,7 +3,7 @@ import { ValidType } from "./validTypes";
 
 export type Range = Array<ValidType>;
 
-export type RangeHandlerFunction = (left : string, right : string) => Range;
+export type RangeHandlerFunction = (left : string, right : string, fail : (message : string) => never) => Range;
 
 export type RangeHandlerClassFunction = RangeHandler | RangeHandlerFunction;
 

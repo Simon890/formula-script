@@ -1,9 +1,12 @@
 import { Arguments } from "./Arguments";
+import { CellReferenceHandler } from "./CellReferenceHandler";
 import { CantAddBoolValue } from "./errors/CantAddBoolValue";
 import { CantAddDateValue } from "./errors/CantAddDateValue";
+import { CellRefError } from "./errors/CellRefError";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
-import { NoHandlerSet } from "./errors/NoHandlerSet";
+import { NoCellReferenceHandlerSet } from "./errors/NoCellReferenceHandlerSet";
+import { NoRangeHandlerSet } from "./errors/NoRangeHandlerSet";
 import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
@@ -35,14 +38,16 @@ import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
+import { CellRefHandlerClassFunction, CellRefHandlerFunction, ObjectCellRefHandler } from "./types/cellRef";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
-import { BinaryExpression, Token, TokenFunctionCall, TokenRange } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall, TokenIdentifier, TokenRange } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
 
 export class Interpreter {
     private _ast !: AST;
     private _registry : FunctionsRegistry;
     private _rangeHandler ?: ObjectRangeHandler | null;
+    private _cellReferenceHandler ?: ObjectCellRefHandler | null;
 
     constructor() {
         this._registry = new FunctionsRegistry();
@@ -121,6 +126,15 @@ export class Interpreter {
     }
 
     /**
+     * Set the cell reference handler to use.
+     * @param handler A function or a class that extends CellReferenceHandler class.
+     */
+    public setCellRefHandler(handler : CellRefHandlerClassFunction) {
+        if(handler instanceof CellReferenceHandler) this._cellReferenceHandler = handler;
+        else this._cellReferenceHandler = {handle: handler};
+    }
+
+    /**
      * FunctionsRegistry
      */
     public get registry() {
@@ -173,8 +187,18 @@ export class Interpreter {
      * @returns Range.
      */
     private _range(token : TokenRange) : Range {
-        if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoHandlerSet();
-        return this._rangeHandler.handle(token.left, token.right);
+        if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoRangeHandlerSet();
+        return this._rangeHandler.handle(token.left, token.right, this._rangeError);
+    }
+
+    /**
+     * Access a cell reference and returns its value by using the CellReferenceHandler.
+     * @param token TokenRange.
+     * @returns Range.
+     */
+    private _cellReference(token : TokenIdentifier) : ValidType {
+        if(this._cellReferenceHandler === null || this._cellReferenceHandler === undefined) throw new NoCellReferenceHandlerSet();
+        return this._cellReferenceHandler.handle(token.value, this._cellRefError);
     }
 
     /**
@@ -188,6 +212,7 @@ export class Interpreter {
             if(arg.type == "FunctionCall") return this._functionCall(arg);
             if(arg.type == "Range") return this._range(arg);
             if(arg.type == "BinaryExpression") return this._binaryExpression(arg);
+            if(arg.type == "Identifier") return this._cellReference(arg);
             return arg.value;
         });
         const formulaFunction = this._registry.get(identifier);
@@ -237,5 +262,21 @@ export class Interpreter {
      */
     private _isDate(val: any): val is Date {
         return val instanceof Date;
+    }
+
+    /**
+     * Throws an error when the range is not valid.
+     * @param message error message.
+     */
+    private _rangeError(message : string) : never {
+        throw new RangeError(message);
+    }
+
+    /**
+     * Throws an error when the cell reference is not valid.
+     * @param message error message.
+     */
+    private _cellRefError(message : string) : never {
+        throw new CellRefError(message);
     }
 }
