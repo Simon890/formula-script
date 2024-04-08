@@ -104,8 +104,13 @@ export type BinaryExpression = {
     value: string
 }
 
+export type UnaryExpression = {
+    type: "UnaryExpression",
+    operator: string,
+    value: Token
+}
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange | UnaryExpression;
 
 export type TokenType = Token["type"];

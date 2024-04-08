@@ -1,7 +1,7 @@
 import { BoolLiteralCannotBeCalled } from "./errors/BoolLiteralCannotBeCalled";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenBoolLiteral, TokenFunctionCall, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenType } from "./types/tokens";
+import { BinaryExpression, Token, TokenAddOp, TokenBoolLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenSubOp, TokenType, UnaryExpression } from "./types/tokens";
 
 export class Parser {
     
@@ -139,12 +139,7 @@ export class Parser {
             if(this._expect("LeftParen")) throw new BoolLiteralCannotBeCalled(this._current().value ? "TRUE" : "FALSE");
             return this._boolLiteral();
         }
-        if(this._current().type == "AddOp" || this._current().type == "SubOp") {
-            const mathOp = this._advance();
-            const numberLiteral = this._numberLiteral();
-            numberLiteral.value *= mathOp.type == "SubOp" ? -1 : 1;
-            return numberLiteral
-        }
+        if(this._current().type == "AddOp" || this._current().type == "SubOp") return this._unaryExpression();
         if(this._current().type == "LeftParen") {
             this._advance("LeftParen");
             const expr = this._boolExpression();
@@ -157,6 +152,17 @@ export class Parser {
             return this._advance("Identifier");
         }
         throw new Error("Unexpected end of input");
+    }
+
+    private _unaryExpression() : UnaryExpression {
+        if(this._current().type !== "AddOp" && this._current().type !== "SubOp") throw new UnexpectedToken(["AddOp", "SubOp"], this._current().type, this._pos);
+        const operator = this._advance() as TokenAddOp | TokenSubOp;
+        let value : Token = this._expression();
+        return {
+            operator: operator.value,
+            type: "UnaryExpression",
+            value
+        }
     }
 
     private _functionCall(): TokenFunctionCall {

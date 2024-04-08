@@ -7,6 +7,7 @@ import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoCellReferenceHandlerSet } from "./errors/NoCellReferenceHandlerSet";
 import { NoRangeHandlerSet } from "./errors/NoRangeHandlerSet";
+import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
@@ -38,9 +39,9 @@ import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
-import { CellRefHandlerClassFunction, CellRefHandlerFunction, ObjectCellRefHandler } from "./types/cellRef";
+import { CellRefHandlerClassFunction, ObjectCellRefHandler } from "./types/cellRef";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
-import { BinaryExpression, Token, TokenFunctionCall, TokenIdentifier, TokenRange } from "./types/tokens";
+import { BinaryExpression, Token, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
 
 export class Interpreter {
@@ -94,15 +95,23 @@ export class Interpreter {
         for (let i = 0; i < this._ast.body.length; i++) {
             const token = this._ast.body[i];
             if(token.type == "NumberLiteral") {
-                expr = Number(token.value);
+                expr = this._numberLiteral(token);
                 continue;
             }
             if(token.type == "StringLiteral") {
-                expr = String(token.value);
+                expr = this._stringLiteral(token);
+                continue;
+            }
+            if(token.type == "Identifier") {
+                expr = this._cellReference(token);
                 continue;
             }
             if(token.type == "BoolLiteral") {
                 expr = Boolean(token.value);
+                continue;
+            }
+            if(token.type == "UnaryExpression") {
+                expr = this._unaryExpression(token);
                 continue;
             }
             if(token.type == "BinaryExpression") {
@@ -111,7 +120,9 @@ export class Interpreter {
             }
             if(token.type == "FunctionCall") {
                 expr = this._functionCall(token);
+                continue;
             }
+            throw new UnexpectedToken(["NumberLiteral", "StringLiteral", "Identifier", "BoolLiteral", "BinaryExpression", "FunctionCall"], token.type, i);
         }
         return expr;
     }
@@ -141,6 +152,14 @@ export class Interpreter {
         return this._registry;
     }
 
+    private _numberLiteral(token: TokenNumberLiteral) : number {
+        return Number(token.value);
+    }
+
+    private _stringLiteral(token : TokenStringLiteral) : string {
+        return String(token.value);
+    }
+
     /**
      * Resolve a binary expression.
      * @param token Token.
@@ -151,11 +170,30 @@ export class Interpreter {
         if(token.type == "StringLiteral") return String(token.value);
         if(token.type == "FunctionCall") return this._functionCall(token);
         if(token.type == "Identifier") return this._cellReference(token);
+        if(token.type == "UnaryExpression") return this._unaryExpression(token);
         if(token.type == "BinaryExpression") {
             if(token.operator == "+") return this.__addition(token);
-            if(token.operator == "-") return this._checkNumeric(this._binaryExpression(token.left)) - this._checkNumeric(this._binaryExpression(token.right));
-            if(token.operator == "*") return this._checkNumeric(this._binaryExpression(token.left)) * this._checkNumeric(this._binaryExpression(token.right));
-            if(token.operator == "/") return this._checkNumeric(this._binaryExpression(token.left)) / this._checkNumeric(this._binaryExpression(token.right));
+            if(token.operator == "-") {
+                const leftValue = this._binaryExpression(token.left);
+                this._checkNumeric(leftValue);
+                const rightValue = this._binaryExpression(token.right);
+                this._checkNumeric(rightValue);
+                return leftValue - rightValue;
+            }
+            if(token.operator == "*") {
+                const leftValue = this._binaryExpression(token.left);
+                this._checkNumeric(leftValue);
+                const rightValue = this._binaryExpression(token.right);
+                this._checkNumeric(rightValue);
+                return leftValue * rightValue;
+            }
+            if(token.operator == "/") {
+                const leftValue = this._binaryExpression(token.left);
+                this._checkNumeric(leftValue);
+                const rightValue = this._binaryExpression(token.right);
+                this._checkNumeric(rightValue);
+                return leftValue / rightValue;
+            }
             if(token.operator == "=") return this._binaryExpression(token.left) === this._binaryExpression(token.right);
             if(token.operator == ">") return this._binaryExpression(token.left) > this._binaryExpression(token.right);
             if(token.operator == "<") return this._binaryExpression(token.left) < this._binaryExpression(token.right);
@@ -164,6 +202,12 @@ export class Interpreter {
             if(token.operator == "!=") return this._binaryExpression(token.left) != this._binaryExpression(token.right);
         }
         throw new Error(`Unexpected token ${token.type}`);
+    }
+
+    private _unaryExpression(token : UnaryExpression) : ValidType {
+        const value = this._binaryExpression(token.value);
+        this._checkNumeric(value)
+        return (value as number) * (token.operator == "-" ? -1 : 1);
     }
 
     /**
@@ -233,9 +277,8 @@ export class Interpreter {
      * @throws ExpectedValueNotMatch.
      * @returns the value passed as argument.
      */
-    private _checkNumeric(val: any) : number {
+    private _checkNumeric(val: any) : asserts val is number {
         if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val);
-        return val;
     }
 
     /**
