@@ -253,13 +253,7 @@ export class Interpreter {
      */
     private _functionCall(token: TokenFunctionCall) : ValidType {
         const identifier = token.value;
-        const args = token.args.map(arg => {
-            if(arg.type == "FunctionCall") return this._functionCall(arg);
-            if(arg.type == "Range") return this._range(arg);
-            if(arg.type == "BinaryExpression") return this._binaryExpression(arg);
-            if(arg.type == "Identifier") return this._cellReference(arg);
-            return arg.value;
-        });
+        const args = token.args.map(arg => this._binaryExpression(arg));
         const formulaFunction = this._registry.get(identifier);
         let numParams = undefined;
         if(formulaFunction instanceof FormulaFunction) numParams = formulaFunction.numParams();
