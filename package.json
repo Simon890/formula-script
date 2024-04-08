@@ -1,6 +1,6 @@
 {
   "name": "formula-script",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Spreadsheet language",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -28,11 +28,20 @@
   "homepage": "https://simon890.github.io/formula-script/",
   "keywords": [
     "FS",
-    "Formula",
-    "Script",
-    "Javascript",
-    "Excel",
-    "Spreadsheet"
+    "formula",
+    "script",
+    "javascript",
+    "excel",
+    "spreadsheet",
+    "compute",
+    "data",
+    "logical",
+    "formulas",
+    "parser",
+    "interpreter",
+    "worksheet",
+    "sheet",
+    "openformula"
   ],
   "author": "Simon Revello",
   "license": "ISC",
