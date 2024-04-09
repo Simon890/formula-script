@@ -4,6 +4,7 @@ import { ObjectFormulaFunction } from "./types/formulaFunction";
 
 export class FunctionsRegistry {
     private _functions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
+    private _magicFunctions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
 
     constructor() {
     }
@@ -14,7 +15,8 @@ export class FunctionsRegistry {
      * @param a FormulaFunction | ObjectFormulaFunction.
      */
     public register(name: string, a: FormulaFunction | ObjectFormulaFunction) {
-        this._functions.set(name, a);
+        if(name.startsWith("_")) this._magicFunctions.set(name, a);
+        else this._functions.set(name, a);
     }
 
     /**
@@ -43,7 +45,12 @@ export class FunctionsRegistry {
      * @returns FormulaFunction | ObjectFormulaFunction.
      */
     public get(name: string) : FormulaFunction | ObjectFormulaFunction {
-        if(this._functions.has(name)) return this._functions.get(name)!;
+        if(this.has(name)) return name.startsWith("_") ? this._magicFunctions.get(name)! : this._functions.get(name)!;
         throw new FunctionDoesNotExist(name);
+    }
+
+    public has(name : string) {
+        if(name.startsWith("_")) return this._magicFunctions.has(name);
+        return this._functions.has(name);
     }
 }

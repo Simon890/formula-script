@@ -1,7 +1,6 @@
 import { Arguments } from "./Arguments";
 import { CellReferenceHandler } from "./CellReferenceHandler";
-import { CantAddBoolValue } from "./errors/CantAddBoolValue";
-import { CantAddDateValue } from "./errors/CantAddDateValue";
+import { BinaryOperationError } from "./errors/BinaryOperationError";
 import { CellRefError } from "./errors/CellRefError";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
@@ -19,6 +18,32 @@ import { Concat } from "./func/Concat";
 import { DateFunction } from "./func/DateFunction";
 import { Day } from "./func/Day";
 import { If } from "./func/If";
+import { BoolAddBool } from "./func/magic/BoolAddBool";
+import { DateAddNumber } from "./func/magic/DateAddNumber";
+import { DateEqDate } from "./func/magic/DateEqDate";
+import { DateGtDate } from "./func/magic/DateGtDate";
+import { DateGteDate } from "./func/magic/DateGteDate";
+import { DateLtDate } from "./func/magic/DateLtDate";
+import { DateLteDate } from "./func/magic/DateLteDate";
+import { NumberAddDate } from "./func/magic/NumberAddDate";
+import { NumberAddNumber } from "./func/magic/NumberAddNumber";
+import { NumberAddString } from "./func/magic/NumberAddString";
+import { NumberDivNumber } from "./func/magic/NumberDivNumber";
+import { NumberEqNumber } from "./func/magic/NumberEqNumber";
+import { NumberEqString } from "./func/magic/NumberEqString";
+import { NumberGteNumber } from "./func/magic/NumberGteNumber";
+import { NumberGtNumber } from "./func/magic/NumberGtNumber";
+import { NumberLteNumber } from "./func/magic/NumberLteNumber";
+import { NumberLtNumber } from "./func/magic/NumberLtNumber";
+import { NumberMulNumber } from "./func/magic/NumberMulNumber";
+import { NumberSubNumber } from "./func/magic/NumberSubNumber";
+import { StringAddNumber } from "./func/magic/StringAddNumber";
+import { StringAddString } from "./func/magic/StringAddString";
+import { StringEqString } from "./func/magic/StringEqString";
+import { StringGteString } from "./func/magic/StringGteString";
+import { StringGtString } from "./func/magic/StringGtString";
+import { StringLteString } from "./func/magic/StringLteString";
+import { StringLtString } from "./func/magic/StringLtString";
 import { Max } from "./func/Max";
 import { Median } from "./func/Median";
 import { Min } from "./func/Min";
@@ -41,7 +66,7 @@ import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
 import { CellRefHandlerClassFunction, ObjectCellRefHandler } from "./types/cellRef";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
-import { BinaryExpression, Token, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
+import { Token, TokenBoolLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
 
 export class Interpreter {
@@ -49,6 +74,40 @@ export class Interpreter {
     private _registry : FunctionsRegistry;
     private _rangeHandler ?: ObjectRangeHandler | null;
     private _cellReferenceHandler ?: ObjectCellRefHandler | null;
+    private _opToStr : {
+        [key : string]: string
+    } = {
+        "+": "ADD",
+        "-": "SUB",
+        "*": "MUL",
+        "/": "DIV",
+        "=": "EQ",
+        "!=": "EQ",
+        ">": "GT",
+        ">=": "GTE",
+        "<": "LT",
+        "<=": "LTE"
+    }
+    private _opToAction : {
+        [key : string]: string
+    } = {
+        "+": "Addition",
+        "-": "Subtraction",
+        "*": "Multiplication",
+        "/": "Division",
+        "=": "Equal comparison",
+        ">": "Greater than comparison",
+        ">=": "Greater or equal than comparison",
+        "<": "Less than comparison",
+        "<=": "Less or equal than comparison"
+    }
+    private _typeToStr = {
+        "number": "NUMBER",
+        "string": "STRING",
+        "date": "DATE",
+        "boolean": "BOOL",
+        "range": "RANGE"
+    }
 
     constructor() {
         this._registry = new FunctionsRegistry();
@@ -77,6 +136,44 @@ export class Interpreter {
         this._registry.register("MONTH", new Month);
         this._registry.register("DAY", new Day);
         this._registry.register("CONCAT", new Concat);
+
+        // ### MAGIC FUNCTIONS ###
+        // Number
+        this._registry.register("_NUMBER_EQ_NUMBER", new NumberEqNumber);
+        this._registry.register("_NUMBER_GT_NUMBER", new NumberGtNumber);
+        this._registry.register("_NUMBER_GTE_NUMBER", new NumberGteNumber);
+        this._registry.register("_NUMBER_LT_NUMBER", new NumberLtNumber);
+        this._registry.register("_NUMBER_LTE_NUMBER", new NumberLteNumber);
+        this._registry.register("_NUMBER_ADD_NUMBER", new NumberAddNumber);
+        this._registry.register("_NUMBER_SUB_NUMBER", new NumberSubNumber);
+        this._registry.register("_NUMBER_MUL_NUMBER", new NumberMulNumber);
+        this._registry.register("_NUMBER_DIV_NUMBER", new NumberDivNumber);
+
+        // String
+        this._registry.register("_STRING_EQ_STRING", new StringEqString);
+        this._registry.register("_STRING_GT_STRING", new StringGtString);
+        this._registry.register("_STRING_GTE_STRING", new StringGteString);
+        this._registry.register("_STRING_LT_STRING", new StringLtString);
+        this._registry.register("_STRING_LTE_STRING", new StringLteString);
+        this._registry.register("_STRING_ADD_STRING", new StringAddString);
+
+        // Boolean
+        this._registry.register("_BOOL_EQ_BOOL", new BoolAddBool);
+
+        // Date
+        this._registry.register("_DATE_EQ_DATE", new DateEqDate);
+        this._registry.register("_DATE_GT_DATE", new DateGtDate);
+        this._registry.register("_DATE_GTE_DATE", new DateGteDate);
+        this._registry.register("_DATE_LT_DATE", new DateLtDate);
+        this._registry.register("_DATE_LTE_DATE", new DateLteDate);
+
+        // Combination
+        this._registry.register("_NUMBER_ADD_STRING", new NumberAddString);
+        this._registry.register("_STRING_ADD_NUMBER", new StringAddNumber);
+        this._registry.register("_NUMBER_EQ_STRING", new NumberEqString);
+        this._registry.register("_NUMBER_ADD_DATE", new NumberAddDate);
+        this._registry.register("_DATE_ADD_NUMBER", new DateAddNumber);
+        // ### END MAGIC FUNCTIONS ###
     }
     
     /**
@@ -94,35 +191,7 @@ export class Interpreter {
         let expr : ValidType | null = null;
         for (let i = 0; i < this._ast.body.length; i++) {
             const token = this._ast.body[i];
-            if(token.type == "NumberLiteral") {
-                expr = this._numberLiteral(token);
-                continue;
-            }
-            if(token.type == "StringLiteral") {
-                expr = this._stringLiteral(token);
-                continue;
-            }
-            if(token.type == "Identifier") {
-                expr = this._cellReference(token);
-                continue;
-            }
-            if(token.type == "BoolLiteral") {
-                expr = Boolean(token.value);
-                continue;
-            }
-            if(token.type == "UnaryExpression") {
-                expr = this._unaryExpression(token);
-                continue;
-            }
-            if(token.type == "BinaryExpression") {
-                expr = this._binaryExpression(token);
-                continue;
-            }
-            if(token.type == "FunctionCall") {
-                expr = this._functionCall(token);
-                continue;
-            }
-            throw new UnexpectedToken(["NumberLiteral", "StringLiteral", "Identifier", "BoolLiteral", "BinaryExpression", "FunctionCall"], token.type, i);
+            expr = this._initialExpression(token);
         }
         return expr;
     }
@@ -160,6 +229,10 @@ export class Interpreter {
         return String(token.value);
     }
 
+    private _boolLiteral(token : TokenBoolLiteral) : boolean {
+        return Boolean(token.value);
+    }
+
     /**
      * Resolve a binary expression.
      * @param token Token.
@@ -171,59 +244,31 @@ export class Interpreter {
         if(token.type == "FunctionCall") return this._functionCall(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
+        if(token.type == "Range") return this._range(token);
         if(token.type == "BinaryExpression") {
-            if(token.operator == "+") return this.__addition(token);
-            if(token.operator == "-") {
-                const leftValue = this._binaryExpression(token.left);
-                this._checkNumeric(leftValue);
-                const rightValue = this._binaryExpression(token.right);
-                this._checkNumeric(rightValue);
-                return leftValue - rightValue;
-            }
-            if(token.operator == "*") {
-                const leftValue = this._binaryExpression(token.left);
-                this._checkNumeric(leftValue);
-                const rightValue = this._binaryExpression(token.right);
-                this._checkNumeric(rightValue);
-                return leftValue * rightValue;
-            }
-            if(token.operator == "/") {
-                const leftValue = this._binaryExpression(token.left);
-                this._checkNumeric(leftValue);
-                const rightValue = this._binaryExpression(token.right);
-                this._checkNumeric(rightValue);
-                return leftValue / rightValue;
-            }
-            if(token.operator == "=") return this._binaryExpression(token.left) === this._binaryExpression(token.right);
-            if(token.operator == ">") return this._binaryExpression(token.left) > this._binaryExpression(token.right);
-            if(token.operator == "<") return this._binaryExpression(token.left) < this._binaryExpression(token.right);
-            if(token.operator == ">=") return this._binaryExpression(token.left) >= this._binaryExpression(token.right);
-            if(token.operator == "<=") return this._binaryExpression(token.left) <= this._binaryExpression(token.right);
-            if(token.operator == "!=") return this._binaryExpression(token.left) != this._binaryExpression(token.right);
+            const leftValue = this._binaryExpression(token.left);
+            const rightValue = this._binaryExpression(token.right);
+            return this._callMagicFunction(leftValue, token.operator, rightValue);
         }
         throw new Error(`Unexpected token ${token.type}`);
+    }
+
+    private _initialExpression(token : Token) : ValidType {
+        if(token.type == "NumberLiteral") return this._numberLiteral(token);
+        if(token.type == "StringLiteral") return this._stringLiteral(token);
+        if(token.type == "Identifier") return this._cellReference(token);
+        if(token.type == "BoolLiteral") return this._boolLiteral(token);
+        if(token.type == "UnaryExpression") return this._unaryExpression(token);
+        if(token.type == "BinaryExpression") return this._binaryExpression(token);
+        if(token.type == "FunctionCall") return this._functionCall(token);
+        if(token.type == "Range") return this._range(token);
+        throw new UnexpectedToken(["NumberLiteral", "StringLiteral", "Identifier", "BoolLiteral", "BinaryExpression", "FunctionCall", "Range"], token.type, 0);
     }
 
     private _unaryExpression(token : UnaryExpression) : ValidType {
         const value = this._binaryExpression(token.value);
         this._checkNumeric(value)
         return (value as number) * (token.operator == "-" ? -1 : 1);
-    }
-
-    /**
-     * Interprets an addition.
-     * @param token BinaryExpression.
-     * @returns number or string.
-     */
-    private __addition(token: BinaryExpression) : number | string {
-        const leftExpression = this._binaryExpression(token.left);
-        const rightExpression = this._binaryExpression(token.right);
-        if(this._isBoolean(leftExpression)) throw new CantAddBoolValue();
-        if(this._isBoolean(rightExpression)) throw new CantAddBoolValue();
-        if(this._isDate(leftExpression)) throw new CantAddDateValue();
-        if(this._isDate(rightExpression)) throw new CantAddDateValue();
-        if(this._isString(leftExpression) || this._isString(rightExpression)) return String(leftExpression) + String(rightExpression);
-        return leftExpression + rightExpression;
     }
 
     /**
@@ -253,17 +298,7 @@ export class Interpreter {
      */
     private _functionCall(token: TokenFunctionCall) : ValidType {
         const identifier = token.value;
-        const args = token.args.map(arg => {
-            if(arg.type == "Range") return this._range(arg);
-            if(arg.type == "FunctionCall") return this._functionCall(arg);
-            if(arg.type == "BinaryExpression") return this._binaryExpression(arg);
-            if(arg.type == "Identifier") return this._cellReference(arg);
-            if(arg.type == "NumberLiteral") return this._numberLiteral(arg);
-            if(arg.type == "StringLiteral") return this._stringLiteral(arg);
-            if(arg.type == "BoolLiteral") return Boolean(arg.value);
-            if(arg.type == "UnaryExpression") return this._unaryExpression(arg);
-            throw new Error(`Unexpected token ${arg.type}`);
-        });
+        const args = token.args.map(arg => this._initialExpression(arg));
         const formulaFunction = this._registry.get(identifier);
         let numParams = undefined;
         if(formulaFunction instanceof FormulaFunction) numParams = formulaFunction.numParams();
@@ -273,6 +308,30 @@ export class Interpreter {
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
             return formulaFunction.call(new Arguments(args));
+    }
+
+    private _callMagicFunction(leftValue : ValidType, operator : string, rightValue : ValidType) : ValidType {
+        const operatorStr = this._operatorToString(operator);
+        const leftStr = this._typeToString(leftValue);
+        const rightStr = this._typeToString(rightValue);
+        let name = "_" + leftStr + "_" + operatorStr + "_" + rightStr;
+        if(!this._registry.has(name)) throw new BinaryOperationError(this._opToAction[operator], leftStr, rightStr);
+        const formulaFunction = this._registry.get(name);
+        const returnValue = formulaFunction.call(new Arguments([leftValue, rightValue]));
+        return operator == "!=" ? !returnValue : returnValue;
+    }
+    
+    private _operatorToString(operator : keyof typeof this._opToStr) {
+        if(!(operator in this._opToStr)) throw new Error("Unknown operator");
+        return this._opToStr[operator];
+    }
+
+    private _typeToString(value : ValidType) : string {
+        const type = typeof value;
+        if(type in this._typeToStr) return this._typeToStr[type as keyof typeof this._typeToStr];
+        if(this._isDate(type)) return this._typeToStr["date"];
+        if(this._isRange(type)) return this._typeToStr["range"];
+        throw new Error("Invalid type");
     }
 
     /**
@@ -310,6 +369,24 @@ export class Interpreter {
      */
     private _isDate(val: any): val is Date {
         return val instanceof Date;
+    }
+
+    /**
+     * Checks whether  the value is a range.
+     * @param val any.
+     * @returns true if it's a range
+     */
+    private _isRange(val: any): val is Range {
+        return Array.isArray(val);
+    }
+
+    /**
+     * Checks whether  the value is a number.
+     * @param val any.
+     * @returns true if it's a number
+     */
+    private _isNumber(val: any) : val is number {
+        return typeof val == "number";
     }
 
     /**
