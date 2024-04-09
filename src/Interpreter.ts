@@ -329,8 +329,8 @@ export class Interpreter {
     private _typeToString(value : ValidType) : string {
         const type = typeof value;
         if(type in this._typeToStr) return this._typeToStr[type as keyof typeof this._typeToStr];
-        if(this._isDate(type)) return this._typeToStr["date"];
-        if(this._isRange(type)) return this._typeToStr["range"];
+        if(this._isDate(value)) return this._typeToStr["date"];
+        if(this._isRange(value)) return this._typeToStr["range"];
         throw new Error("Invalid type");
     }
 
