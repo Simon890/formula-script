@@ -115,12 +115,29 @@ export class Parser {
         return left as BinaryExpression;
     }
 
-    private _multExpression(): BinaryExpression {
+    private _powExpression() : BinaryExpression {
         let left : Token = this._expression();
-        while(!this._isEOF() && (this._current().value == "*" || this._current().value == "/")) {
+        while(!this._isEOF() && this._current().value == "^") {
             const mathToken = this._advance(this._current().type);
             const operator = mathToken.value as string;
             const right = this._expression();
+            left = {
+                left,
+                right,
+                operator,
+                type: "BinaryExpression",
+                value: ""
+            }
+        }
+        return left as BinaryExpression;
+    }
+
+    private _multExpression(): BinaryExpression {
+        let left : Token = this._powExpression();
+        while(!this._isEOF() && (this._current().value == "*" || this._current().value == "/")) {
+            const mathToken = this._advance(this._current().type);
+            const operator = mathToken.value as string;
+            const right = this._powExpression();
             left = {
                 left,
                 right,
@@ -176,6 +193,7 @@ export class Parser {
                 break;
             }
             this._advance("Comma");
+            if(this._current().type == "RightParen") throw new UnexpectedToken(["Expression"], "RightParen", this._pos);
         }
         this._advance("RightParen");
         return {

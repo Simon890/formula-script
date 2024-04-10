@@ -55,6 +55,11 @@ export type TokenMultOp = {
     value: "*" | string
 }
 
+export type TokenPowOp = {
+    type: "PowOp",
+    value: "^" | string
+}
+
 export type TokenDivOp = {
     type: "DivOp",
     value: "/" | string
@@ -111,6 +116,6 @@ export type UnaryExpression = {
 }
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange | UnaryExpression;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenPowOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange | UnaryExpression;
 
 export type TokenType = Token["type"];

@@ -36,6 +36,7 @@ import { NumberGtNumber } from "./func/magic/NumberGtNumber";
 import { NumberLteNumber } from "./func/magic/NumberLteNumber";
 import { NumberLtNumber } from "./func/magic/NumberLtNumber";
 import { NumberMulNumber } from "./func/magic/NumberMulNumber";
+import { NumberPowNumber } from "./func/magic/NumberPowNumber";
 import { NumberSubNumber } from "./func/magic/NumberSubNumber";
 import { StringAddNumber } from "./func/magic/StringAddNumber";
 import { StringAddString } from "./func/magic/StringAddString";
@@ -83,6 +84,7 @@ export class Interpreter {
         "*": "MUL",
         "/": "DIV",
         "=": "EQ",
+        "^": "POW",
         "!=": "EQ",
         ">": "GT",
         ">=": "GTE",
@@ -97,6 +99,7 @@ export class Interpreter {
         "*": "Multiplication",
         "/": "Division",
         "=": "Equal comparison",
+        "^": "Power",
         ">": "Greater than comparison",
         ">=": "Greater or equal than comparison",
         "<": "Less than comparison",
@@ -149,6 +152,7 @@ export class Interpreter {
         this._registry.register("_NUMBER_SUB_NUMBER", new NumberSubNumber);
         this._registry.register("_NUMBER_MUL_NUMBER", new NumberMulNumber);
         this._registry.register("_NUMBER_DIV_NUMBER", new NumberDivNumber);
+        this._registry.register("_NUMBER_POW_NUMBER", new NumberPowNumber);
 
         // String
         this._registry.register("_STRING_EQ_STRING", new StringEqString);

@@ -1,6 +1,6 @@
 import { UnexpectedEndOfInput } from "./errors/UnexpectedEndOfInput";
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenPowOp, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
 
 export class Tokenizer {
     /**
@@ -24,6 +24,7 @@ export class Tokenizer {
         while(!this._isEOF()) {
             this._skipEmptySpace();
             const current = this._current();
+            if(current == undefined) throw new UnexpectedEndOfInput();
             if(this._isChar(current)) {
                 const identifier = this._identifier();
                 if(identifier.value == "TRUE" || identifier.value == "FALSE") {
@@ -87,6 +88,10 @@ export class Tokenizer {
             }
             if(this._isMultOp(current)) {
                 this._tokens.push(this._multOp());
+                continue;
+            }
+            if(this._isPow(current)) {
+                this._tokens.push(this._powOp());
                 continue;
             }
             if(this._isEqOp(current)) {
@@ -307,6 +312,10 @@ export class Tokenizer {
         return REGEX.COLON.test(value);
     }
 
+    private _isPow(value : string) : boolean {
+        return REGEX.POW_OP.test(value);
+    }
+
     /**
      * Skips empty spaces and moves the position.
      */
@@ -472,6 +481,16 @@ export class Tokenizer {
         }
     }
 
+    private _powOp() : TokenPowOp {
+        if(this._isPow(this._current())) {
+            this._advance();
+        }
+        return {
+            type: "PowOp",
+            value: "^"
+        }
+    }
+
     /**
      * @returns TokenDivOp
      */
@@ -587,6 +606,7 @@ export const REGEX = Object.freeze({
     SUB_OP: /[\-]/,
     MULT_OP: /[\*]/,
     DIV_OP: /[\/]/,
+    POW_OP: /[\^]/,
     EQ_OP: /[\=]/,
     NOT_EQ_OP: /[!=]/,
     GT_OP: /[\>]/,

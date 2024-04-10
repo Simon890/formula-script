@@ -52,3 +52,12 @@ test('Interpreter - Function call', () => {
     expect(i.run("AVG(1, 5, (3 + 4 * 1), 1)")).toEqual(3.5);
     expect(i.run("AVG(1, 5, 7, 1) + ABS(-5 + 2)")).toEqual(6.5);
 });
+
+test('Interpreter - Power', () => {
+    const i = new Interpreter();
+    expect(i.run("2^3 + AVG(5, 5, 3, 2, 1)")).toEqual(11.2);
+    expect(i.run("(3^2) + 16 ^ (1/2) + SUM(1, 2, 3)")).toEqual(19);
+    expect(i.run("2 ^ 4 + 5 ^ 2 - AVG(10, 20, 30)")).toEqual(21);
+    expect(i.run("SUM(2, 3 ^ 2, SQRT(25) - AVG(1, 3, 5))")).toEqual(13);
+    expect(i.run("(2 ^ 3 + 4^2) / SQRT(9)")).toEqual(8);
+});
