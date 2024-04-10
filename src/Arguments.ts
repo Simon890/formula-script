@@ -1,10 +1,11 @@
 import { ArgumentDoesNotExist } from "./errors/ArgumentDoesNotExist"
 import { ArgumentWrongType } from "./errors/ArgumentWrongType";
 import { RangeArray } from "./RangeArray";
+import { ValidType } from "./types/validTypes";
 
 export class Arguments {
 
-    constructor(private _values : unknown[]) {
+    constructor(private _values : ValidType[]) {
 
     }
 

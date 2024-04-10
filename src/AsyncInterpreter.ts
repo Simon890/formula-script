@@ -6,7 +6,6 @@ import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoCellReferenceHandlerSet } from "./errors/NoCellReferenceHandlerSet";
 import { NoRangeHandlerSet } from "./errors/NoRangeHandlerSet";
-import { UnexpectedAsyncFunction } from "./errors/UnexpectedAsynFunction";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
@@ -72,7 +71,7 @@ import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/ra
 import { Token, TokenBoolLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
 
-export class Interpreter {
+export class AsyncInterpreter {
     private _ast !: AST;
     private _registry : FunctionsRegistry;
     private _rangeHandler ?: ObjectRangeHandler | null;
@@ -188,7 +187,7 @@ export class Interpreter {
      * @param rebuildAST True if it's needed to rebuild de AST.
      * @returns an expression.
      */
-    public run(str : string, rebuildAST = true) {
+    public async run(str : string, rebuildAST = true) {
         if(rebuildAST || this._ast == null) {
             const tokenizer = new Tokenizer(str);
             const parser = new Parser(tokenizer.tokenize());
@@ -197,7 +196,7 @@ export class Interpreter {
         let expr : ValidType | null = null;
         for (let i = 0; i < this._ast.body.length; i++) {
             const token = this._ast.body[i];
-            expr = this._initialExpression(token);
+            expr = await this._initialExpression(token);
         }
         TodayDate.reset();
         return expr;
@@ -245,29 +244,29 @@ export class Interpreter {
      * @param token Token.
      * @returns ValidType.
      */
-    private _binaryExpression(token : Token) : ValidType {
+    private async _binaryExpression(token : Token) : Promise<ValidType> {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
-        if(token.type == "FunctionCall") return this._functionCall(token);
+        if(token.type == "FunctionCall") return await this._functionCall(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
         if(token.type == "Range") return this._range(token);
         if(token.type == "BinaryExpression") {
-            const leftValue = this._binaryExpression(token.left);
-            const rightValue = this._binaryExpression(token.right);
+            const leftValue = await this._binaryExpression(token.left);
+            const rightValue = await this._binaryExpression(token.right);
             return this._callMagicFunction(leftValue, token.operator, rightValue);
         }
         throw new Error(`Unexpected token ${token.type}`);
     }
 
-    private _initialExpression(token : Token) : ValidType {
+    private async _initialExpression(token : Token) : Promise<ValidType> {
         if(token.type == "NumberLiteral") return this._numberLiteral(token);
         if(token.type == "StringLiteral") return this._stringLiteral(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "BoolLiteral") return this._boolLiteral(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
         if(token.type == "BinaryExpression") return this._binaryExpression(token);
-        if(token.type == "FunctionCall") return this._functionCall(token);
+        if(token.type == "FunctionCall") return await this._functionCall(token);
         if(token.type == "Range") return this._range(token);
         throw new UnexpectedToken(["NumberLiteral", "StringLiteral", "Identifier", "BoolLiteral", "BinaryExpression", "FunctionCall", "Range"], token.type, 0);
     }
@@ -303,9 +302,12 @@ export class Interpreter {
      * @param token TokenFunctionCall.
      * @returns ValidType.
      */
-    private _functionCall(token: TokenFunctionCall) : ValidType {
+    private async _functionCall(token: TokenFunctionCall) : Promise<ValidType> {
         const identifier = token.value;
-        const args = token.args.map(arg => this._initialExpression(arg));
+        const args : ValidType [] = [];
+        for (const arg of token.args) {
+            args.push(await this._initialExpression(arg));
+        }
         const formulaFunction = this._registry.get(identifier);
         let numParams = undefined;
         if(formulaFunction instanceof FormulaFunction) numParams = formulaFunction.numParams();
@@ -314,12 +316,10 @@ export class Interpreter {
             else numParams = formulaFunction.numParams;
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
-        const value = formulaFunction.call(new Arguments(args));
-        if(value instanceof Promise) throw new UnexpectedAsyncFunction(identifier);
-        return value;
+            return formulaFunction.call(new Arguments(args));
     }
 
-    private _callMagicFunction(leftValue : ValidType, operator : string, rightValue : ValidType) : ValidType {
+    private async _callMagicFunction(leftValue : ValidType, operator : string, rightValue : ValidType) : Promise<ValidType> {
         const operatorStr = this._operatorToString(operator);
         const leftStr = this._typeToString(leftValue);
         const rightStr = this._typeToString(rightValue);
@@ -327,7 +327,6 @@ export class Interpreter {
         if(!this._registry.has(name)) throw new BinaryOperationError(this._opToAction[operator], leftStr, rightStr);
         const formulaFunction = this._registry.get(name);
         const returnValue = formulaFunction.call(new Arguments([leftValue, rightValue]));
-        if(returnValue instanceof Promise) throw new UnexpectedAsyncFunction(name);
         return operator == "!=" ? !returnValue : returnValue;
     }
     
