@@ -271,8 +271,8 @@ export class AsyncInterpreter {
         throw new UnexpectedToken(["NumberLiteral", "StringLiteral", "Identifier", "BoolLiteral", "BinaryExpression", "FunctionCall", "Range"], token.type, 0);
     }
 
-    private _unaryExpression(token : UnaryExpression) : ValidType {
-        const value = this._binaryExpression(token.value);
+    private async _unaryExpression(token : UnaryExpression) : Promise<ValidType> {
+        const value = await this._binaryExpression(token.value);
         this._checkNumeric(value)
         return (value as number) * (token.operator == "-" ? -1 : 1);
     }
@@ -345,56 +345,56 @@ export class AsyncInterpreter {
 
     /**
      * Checks whether the value is a number. If not it throws an error.
-     * @param val any.
+     * @param val ValidType.
      * @throws ExpectedValueNotMatch.
      * @returns the value passed as argument.
      */
-    private _checkNumeric(val: any) : asserts val is number {
-        if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val);
+    private _checkNumeric(val: ValidType) : asserts val is number {
+        if(typeof val != "number") throw new ExpectedValueNotMatch("numeric", val as string);
     }
 
     /**
      * Checks whether the value is string type.
-     * @param val any.
+     * @param val ValidType.
      * @returns true if it's a string.
      */
-    private _isString(val : any) : val is string {
+    private _isString(val : ValidType) : val is string {
         return typeof val == "string";
     }
 
     /**
      * Checks whether the value is boolean type.
-     * @param val any.
+     * @param val ValidType.
      * @returns true if it's a boolean.
      */
-    private _isBoolean(val: any) : val is boolean {
+    private _isBoolean(val: ValidType) : val is boolean {
         return typeof val == "boolean";
     }
 
     /**
      * Checks whether the value is date type.
-     * @param val any.
+     * @param val ValidType.
      * @returns true if it's a Date.
      */
-    private _isDate(val: any): val is Date {
+    private _isDate(val: ValidType): val is Date {
         return val instanceof Date;
     }
 
     /**
      * Checks whether  the value is a range.
-     * @param val any.
+     * @param val ValidType.
      * @returns true if it's a range
      */
-    private _isRange(val: any): val is Range {
+    private _isRange(val: ValidType): val is Range {
         return Array.isArray(val);
     }
 
     /**
      * Checks whether  the value is a number.
-     * @param val any.
+     * @param val ValidType.
      * @returns true if it's a number
      */
-    private _isNumber(val: any) : val is number {
+    private _isNumber(val: ValidType) : val is number {
         return typeof val == "number";
     }
 
