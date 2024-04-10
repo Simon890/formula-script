@@ -1,6 +1,6 @@
 {
   "name": "formula-script",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Spreadsheet language",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
