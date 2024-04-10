@@ -62,6 +62,7 @@ import { Year } from "./func/Year";
 import { FunctionsRegistry } from "./FunctionsRegistry";
 import { Parser } from "./Parser";
 import { RangeHandler } from "./RangeHandler";
+import { TodayDate } from "./TodayDate";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
 import { CellRefHandlerClassFunction, ObjectCellRefHandler } from "./types/cellRef";
@@ -193,6 +194,7 @@ export class Interpreter {
             const token = this._ast.body[i];
             expr = this._initialExpression(token);
         }
+        TodayDate.reset();
         return expr;
     }
 
