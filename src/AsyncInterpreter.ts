@@ -247,7 +247,7 @@ export class AsyncInterpreter {
     private async _binaryExpression(token : Token) : Promise<ValidType> {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
-        if(token.type == "FunctionCall") return await this._functionCall(token);
+        if(token.type == "FunctionCall") return this._functionCall(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
         if(token.type == "Range") return this._range(token);
@@ -282,7 +282,7 @@ export class AsyncInterpreter {
      * @param token TokenRange.
      * @returns Range.
      */
-    private _range(token : TokenRange) : Range {
+    private async _range(token : TokenRange) : Promise<Range> {
         if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoRangeHandlerSet();
         return this._rangeHandler.handle(token.left, token.right, this._rangeError);
     }
@@ -292,7 +292,7 @@ export class AsyncInterpreter {
      * @param token TokenRange.
      * @returns Range.
      */
-    private _cellReference(token : TokenIdentifier) : ValidType {
+    private async _cellReference(token : TokenIdentifier) : Promise<ValidType> {
         if(this._cellReferenceHandler === null || this._cellReferenceHandler === undefined) throw new NoCellReferenceHandlerSet();
         return this._cellReferenceHandler.handle(token.value, this._cellRefError);
     }

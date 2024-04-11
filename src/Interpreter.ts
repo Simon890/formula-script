@@ -6,6 +6,8 @@ import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoCellReferenceHandlerSet } from "./errors/NoCellReferenceHandlerSet";
 import { NoRangeHandlerSet } from "./errors/NoRangeHandlerSet";
+import { UnexpectedAsyncCellRefHandler } from "./errors/UnexpectedAsyncCellRefHandler";
+import { UnexpectedAsyncRangeHandler } from "./errors/UnexpectedAsyncRangeHandler";
 import { UnexpectedAsyncFunction } from "./errors/UnexpectedAsynFunction";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { FormulaFunction } from "./FormulaFunction";
@@ -285,7 +287,9 @@ export class Interpreter {
      */
     private _range(token : TokenRange) : Range {
         if(this._rangeHandler === null || this._rangeHandler === undefined) throw new NoRangeHandlerSet();
-        return this._rangeHandler.handle(token.left, token.right, this._rangeError);
+        const value = this._rangeHandler.handle(token.left, token.right, this._rangeError);
+        if(value instanceof Promise) throw new UnexpectedAsyncRangeHandler();
+        return value;
     }
 
     /**
@@ -295,7 +299,9 @@ export class Interpreter {
      */
     private _cellReference(token : TokenIdentifier) : ValidType {
         if(this._cellReferenceHandler === null || this._cellReferenceHandler === undefined) throw new NoCellReferenceHandlerSet();
-        return this._cellReferenceHandler.handle(token.value, this._cellRefError);
+        const value = this._cellReferenceHandler.handle(token.value, this._cellRefError);
+        if(value instanceof Promise) throw new UnexpectedAsyncCellRefHandler();
+        return value;
     }
 
     /**
