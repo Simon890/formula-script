@@ -18,6 +18,11 @@ export type TokenStringLiteral = {
     value: string
 }
 
+export type TokenDateLiteral = {
+    type: "DateLiteral",
+    value: string
+}
+
 export type TokenRange = {
     type: "Range",
     value: string,
@@ -116,6 +121,6 @@ export type UnaryExpression = {
 }
 
 
-export type Token = TokenIdentifier | TokenNumberLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenPowOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange | UnaryExpression;
+export type Token = TokenIdentifier | TokenNumberLiteral | TokenDateLiteral | TokenBoolLiteral | TokenRightParen | TokenLeftParen | TokenComma | TokenAddOp | TokenSubOp | TokenMultOp | TokenPowOp | TokenDivOp | BinaryExpression | TokenEOF | TokenFunctionCall | TokenGtOp | TokenLtOp | TokenEqOp | TokenNotEqOp | TokenStringLiteral | TokenColon | TokenRange | UnaryExpression;
 
 export type TokenType = Token["type"];

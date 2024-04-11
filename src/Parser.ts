@@ -1,7 +1,7 @@
 import { BoolLiteralCannotBeCalled } from "./errors/BoolLiteralCannotBeCalled";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
-import { BinaryExpression, Token, TokenAddOp, TokenBoolLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenSubOp, TokenType, UnaryExpression } from "./types/tokens";
+import { BinaryExpression, Token, TokenAddOp, TokenBoolLiteral, TokenDateLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenSubOp, TokenType, UnaryExpression } from "./types/tokens";
 
 export class Parser {
     
@@ -58,6 +58,11 @@ export class Parser {
     private _stringLiteral(): TokenStringLiteral {
         const value = this._advance("StringLiteral");
         return value as TokenStringLiteral;
+    }
+
+    private _dateLiteral() : TokenDateLiteral {
+        const value = this._advance("DateLiteral");
+        return value as TokenDateLiteral;
     }
 
     private _boolLiteral() : TokenBoolLiteral {
@@ -152,6 +157,7 @@ export class Parser {
     private _expression(): Token {
         if(this._current().type == "NumberLiteral") return this._numberLiteral();
         if(this._current().type == "StringLiteral") return this._stringLiteral();
+        if(this._current().type == "DateLiteral") return this._dateLiteral();
         if(this._current().type == "BoolLiteral") {
             if(this._expect("LeftParen")) throw new BoolLiteralCannotBeCalled(this._current().value ? "TRUE" : "FALSE");
             return this._boolLiteral();

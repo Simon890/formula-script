@@ -69,7 +69,7 @@ import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
 import { CellRefHandlerClassFunction, ObjectCellRefHandler } from "./types/cellRef";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
-import { Token, TokenBoolLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
+import { Token, TokenBoolLiteral, TokenDateLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
 
 export class Interpreter {
@@ -236,6 +236,10 @@ export class Interpreter {
         return String(token.value);
     }
 
+    private _dateLiteral(token: TokenDateLiteral) : Date {
+        return new Date(token.value);
+    }
+
     private _boolLiteral(token : TokenBoolLiteral) : boolean {
         return Boolean(token.value);
     }
@@ -248,6 +252,7 @@ export class Interpreter {
     private _binaryExpression(token : Token) : ValidType {
         if(token.type == "NumberLiteral") return Number(token.value);
         if(token.type == "StringLiteral") return String(token.value);
+        if(token.type == "DateLiteral") return new Date(token.value);
         if(token.type == "FunctionCall") return this._functionCall(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
@@ -263,6 +268,7 @@ export class Interpreter {
     private _initialExpression(token : Token) : ValidType {
         if(token.type == "NumberLiteral") return this._numberLiteral(token);
         if(token.type == "StringLiteral") return this._stringLiteral(token);
+        if(token.type == "DateLiteral") return this._dateLiteral(token);
         if(token.type == "Identifier") return this._cellReference(token);
         if(token.type == "BoolLiteral") return this._boolLiteral(token);
         if(token.type == "UnaryExpression") return this._unaryExpression(token);
