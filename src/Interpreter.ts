@@ -68,6 +68,7 @@ import { TodayDate } from "./TodayDate";
 import { Tokenizer } from "./Tokenizer";
 import { AST } from "./types/ast";
 import { CellRefHandlerClassFunction, ObjectCellRefHandler } from "./types/cellRef";
+import { Config } from "./types/config";
 import { ObjectRangeHandler, Range, RangeHandlerClassFunction } from "./types/range";
 import { Token, TokenBoolLiteral, TokenDateLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, UnaryExpression } from "./types/tokens";
 import { ValidType } from "./types/validTypes";
@@ -77,6 +78,7 @@ export class Interpreter {
     private _registry : FunctionsRegistry;
     private _rangeHandler ?: ObjectRangeHandler | null;
     private _cellReferenceHandler ?: ObjectCellRefHandler | null;
+    private _config : Config;
     private _opToStr : {
         [key : string]: string
     } = {
@@ -114,7 +116,13 @@ export class Interpreter {
         "range": "RANGE"
     }
 
-    constructor() {
+    constructor(config ?: Config) {
+
+        this._config = {
+            useLiteralDate: true,
+            ...config
+        }
+
         this._registry = new FunctionsRegistry();
         this._registry.register("SUM", new Sum);
         this._registry.register("SUMRANGE", new SumRange);
@@ -190,7 +198,7 @@ export class Interpreter {
      */
     public run(str : string, rebuildAST = true) {
         if(rebuildAST || this._ast == null) {
-            const tokenizer = new Tokenizer(str);
+            const tokenizer = new Tokenizer(str, this._config);
             const parser = new Parser(tokenizer.tokenize());
             this._ast = parser.parse();
         }

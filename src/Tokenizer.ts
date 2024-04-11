@@ -3,6 +3,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { UnexpectedEndOfInput } from "./errors/UnexpectedEndOfInput";
 import { UnknownTokenError } from "./errors/UnknownToken";
 import { Token, TokenAddOp, TokenColon, TokenComma, TokenDateLiteral, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenPowOp, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Config } from "./types/config";
 dayjs.extend(customParseFormat);
 
 export class Tokenizer {
@@ -14,8 +15,11 @@ export class Tokenizer {
      * Generated tokens.
      */
     private _tokens : Token[] = [];
-    constructor(private _text : string) {
 
+    private readonly _config : Config;
+
+    constructor(private _text : string, config : Config) {
+        this._config = config;
     }
 
     /**
@@ -41,10 +45,12 @@ export class Tokenizer {
                 continue;
             }
             if(this._isNumber(current)) {
-                const date = this._dateLiteral();
-                if(date) {
-                    this._tokens.push(date);
-                    continue;
+                if(this._config.useLiteralDate) {
+                    const date = this._dateLiteral();
+                    if(date) {
+                        this._tokens.push(date);
+                        continue;
+                    }
                 }
                 const numberToken = this._numberOrIdentifier();
                 this._tokens.push(numberToken);

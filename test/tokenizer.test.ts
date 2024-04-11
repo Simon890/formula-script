@@ -1,7 +1,9 @@
 import { Tokenizer } from "../src/Tokenizer";
 
 test('Add operation', () => {
-    const t = new Tokenizer("1 + 2.5");
+    const t = new Tokenizer("1 + 2.5", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 1},
         {type: "AddOp", value: "+"},
@@ -11,7 +13,9 @@ test('Add operation', () => {
 });
 
 test('Substract operation', () => {
-    const t = new Tokenizer("5.99 - 91");
+    const t = new Tokenizer("5.99 - 91", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 5.99},
         {type: "SubOp", value: "-"},
@@ -21,7 +25,9 @@ test('Substract operation', () => {
 });
 
 test('Multiplication operation', () => {
-    const t = new Tokenizer("1.5 * 0");
+    const t = new Tokenizer("1.5 * 0", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 1.5},
         {type: "MultOp", value: "*"},
@@ -31,7 +37,9 @@ test('Multiplication operation', () => {
 });
 
 test('Division operation', () => {
-    const t = new Tokenizer("8 / 4.5");
+    const t = new Tokenizer("8 / 4.5", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 8},
         {type: "DivOp", value: "/"},
@@ -41,7 +49,9 @@ test('Division operation', () => {
 });
 
 test('Multiple operand operation', () => {
-    const t = new Tokenizer("1 + 2 - 3.5 * 7 + ((4 - 2) / 2)");
+    const t = new Tokenizer("1 + 2 - 3.5 * 7 + ((4 - 2) / 2)", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "NumberLiteral", value: 1},
         {type: "AddOp", value: "+"},
@@ -65,7 +75,9 @@ test('Multiple operand operation', () => {
 });
 
 test('Identifier', () => {
-    const t = new Tokenizer("SUM(1.7, 23)");
+    const t = new Tokenizer("SUM(1.7, 23)", {
+        useLiteralDate: true
+    });
     expect(t.tokenize()).toEqual([
         {type: "Identifier", value: "SUM"},
         {type: "LeftParen", value: "("},
