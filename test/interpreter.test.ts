@@ -81,7 +81,7 @@ test("Interpreter - Literal Date Enabled", () => {
     expect(i.run("2024 / 05 / 06")).toBeCloseTo(67.47);
 });
 
-test("Interpreter - Literal Date Enabled", () => {
+test("Interpreter - Literal Date Disabled", () => {
     const i = new Interpreter({
         useLiteralDate: false
     });
