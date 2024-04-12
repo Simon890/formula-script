@@ -98,3 +98,57 @@ test("Interpreter - Literal Date Disabled", () => {
     expect(i.run("2024/7/20")).toBeCloseTo(14.46);
     expect(i.run("2024 / 05 / 06")).toBeCloseTo(67.47);
 });
+
+test("Interpreter - Case sensitive", () => {
+    const i = new Interpreter();
+    i.setCellRefHandler((name) => {
+        return name;
+    });
+    i.setRangeHandler((left, right) => {
+        return [left + "-" + right];
+    });
+    i.registry.register("MyFuNcTiOn", {
+        call() {
+            return 1;
+        },
+        numParams: 0
+    });
+    expect(i.run("SUM(1, 2, 3)")).toEqual(6);
+    expect(() => i.run("sum(1, 2, 3)")).toThrow(Error);
+    expect(() => i.run("SuM(1, 2, avg(1, 2, 3))")).toThrow(Error);
+    expect(i.run("a1")).toEqual("a1");
+    expect(i.run("A1")).toEqual("A1");
+    expect(i.run("a1:bc")).toEqual(["a1-bc"]);
+    expect(i.run("A1:bc")).toEqual(["A1-bc"]);
+    expect(i.run("MyFuNcTiOn()")).toEqual(1);
+    expect(() => i.run("MyFuNcTiON()")).toThrow(Error);
+    expect(() => i.run("MYFUNCTION()")).toThrow(Error);
+});
+
+test("Interpreter - Case insensitive", () => {
+    const i = new Interpreter({
+        isCaseSensitive: false
+    });
+    i.setCellRefHandler((name) => {
+        return name;
+    });
+    i.setRangeHandler((left, right) => {
+        return [left + "-" + right];
+    });
+    i.registry.register("MyFuNcTiOn", {
+        call() {
+            return 1;
+        },
+        numParams: 0
+    });
+    expect(i.run("SUM(1, 2, 3)")).toEqual(6);
+    expect(i.run("sum(1, 2, 3)")).toEqual(6);
+    expect(i.run("SuM(1, 2, avg(1, 2, 3))")).toEqual(5);
+    expect(i.run("a1")).toEqual("a1");
+    expect(i.run("A1")).toEqual("A1");
+    expect(i.run("a1:bc")).toEqual(["a1-bc"]);
+    expect(i.run("A1:bc")).toEqual(["A1-bc"]);
+    expect(i.run("MyFuNcTiOn()")).toEqual(1);
+    expect(i.run("MyFuNcTiON()")).toEqual(1);
+    expect(i.run("MYFUNCTION()")).toEqual(1);
+});
