@@ -1,4 +1,7 @@
+import dayjs from "dayjs";
 import { Interpreter } from "../src/Interpreter"
+import { BinaryOperationError } from "../src/errors/BinaryOperationError";
+import { ArgumentWrongType } from "../src/errors/ArgumentWrongType";
 
 test('Interpreter - Addition', () => {
     const i = new Interpreter();
@@ -60,4 +63,38 @@ test('Interpreter - Power', () => {
     expect(i.run("2 ^ 4 + 5 ^ 2 - AVG(10, 20, 30)")).toEqual(21);
     expect(i.run("SUM(2, 3 ^ 2, SQRT(25) - AVG(1, 3, 5))")).toEqual(13);
     expect(i.run("(2 ^ 3 + 4^2) / SQRT(9)")).toEqual(8);
+});
+
+test("Interpreter - Literal Date Enabled", () => {
+    const i = new Interpreter();
+    expect(i.run("2024/05/06")).toBeInstanceOf(Date);
+    expect(i.run("2024/05/066")).toBeCloseTo(6.13);
+    expect(i.run("2024/05/1")).toBeCloseTo(404.8);
+    expect(dayjs(i.run("2024/05/06+1") as Date).format("YYYY/MM/DD")).toEqual("2024/05/07");
+    expect(dayjs(i.run("+1+2024/05/06") as Date).format("YYYY/MM/DD")).toEqual("2024/05/07");
+    expect(dayjs(i.run("-1+2024/05/06+1") as Date).format("YYYY/MM/DD")).toEqual("2024/05/06");
+    expect(() => i.run("2024/05/06+'hello'")).toThrow(BinaryOperationError);
+    expect(i.run("2024/ 05/01")).toBeCloseTo(404.8);
+    expect(i.run("20245/05/7")).toBeCloseTo(578.43);
+    expect(i.run("DAY(((2024/05/15) + 1) + 2)")).toEqual(18);
+    expect(i.run("2024/7/20")).toBeCloseTo(14.46);
+    expect(i.run("2024 / 05 / 06")).toBeCloseTo(67.47);
+});
+
+test("Interpreter - Literal Date Enabled", () => {
+    const i = new Interpreter({
+        useLiteralDate: false
+    });
+    expect(i.run("2024/05/06")).toBeCloseTo(67.47);
+    expect(i.run("2024/05/066")).toBeCloseTo(6.13);
+    expect(i.run("2024/05/1")).toBeCloseTo(404.8);
+    expect(i.run("2024/05/06+1")).toBeCloseTo(68.47);
+    expect(i.run("+1+2024/05/06")).toBeCloseTo(68.47);
+    expect(i.run("-1+2024/05/06+1")).toBeCloseTo(67.47);
+    expect(i.run("2024/05/06+'hello'")).toEqual("67.46666666666667hello");
+    expect(i.run("2024/ 05/01")).toBeCloseTo(404.8);
+    expect(i.run("20245/05/7")).toBeCloseTo(578.43);
+    expect(() => i.run("DAY(((2024/05/15) + 1) + 2)")).toThrow(ArgumentWrongType);
+    expect(i.run("2024/7/20")).toBeCloseTo(14.46);
+    expect(i.run("2024 / 05 / 06")).toBeCloseTo(67.47);
 });

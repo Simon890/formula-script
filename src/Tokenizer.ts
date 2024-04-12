@@ -1,6 +1,10 @@
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { UnexpectedEndOfInput } from "./errors/UnexpectedEndOfInput";
 import { UnknownTokenError } from "./errors/UnknownToken";
-import { Token, TokenAddOp, TokenColon, TokenComma, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenPowOp, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Token, TokenAddOp, TokenColon, TokenComma, TokenDateLiteral, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenPowOp, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
+import { Config } from "./types/config";
+dayjs.extend(customParseFormat);
 
 export class Tokenizer {
     /**
@@ -11,8 +15,11 @@ export class Tokenizer {
      * Generated tokens.
      */
     private _tokens : Token[] = [];
-    constructor(private _text : string) {
 
+    private readonly _config : Config;
+
+    constructor(private _text : string, config : Config) {
+        this._config = config;
     }
 
     /**
@@ -38,6 +45,13 @@ export class Tokenizer {
                 continue;
             }
             if(this._isNumber(current)) {
+                if(this._config.useLiteralDate) {
+                    const date = this._dateLiteral();
+                    if(date) {
+                        this._tokens.push(date);
+                        continue;
+                    }
+                }
                 const numberToken = this._numberOrIdentifier();
                 this._tokens.push(numberToken);
                 continue;
@@ -132,6 +146,13 @@ export class Tokenizer {
      */
     private _advance() {
         this._pos++;
+    }
+
+    /**
+     * Moves to the previous character.
+     */
+    private _goBack() {
+        this._pos--;
     }
 
     /**
@@ -365,6 +386,67 @@ export class Tokenizer {
             type: "NumberLiteral",
             value: Number(value)
         }
+    }
+
+    private _dateLiteral() : TokenDateLiteral | null {
+        let num = this._current();
+        this._advance();
+
+        const restart = () => {
+            for (let i = 0; i < num.length; i++) {
+                this._goBack();
+            }
+            return null;
+        }
+
+        while(num.length < 4) {
+            if(this._isNumber(this._current())) {
+                num += this._current();
+                this._advance();
+            } else {
+                return restart();
+            }
+        }
+
+        if(num.length != 4) return restart();
+
+        if(!this._isDivOp(this._current())) return restart();
+        
+        num += this._current(); // yyyy/ length = 5
+        this._advance();
+        
+        if(this._isNumber(this._current())) {
+            num += this._current(); // yyyy/m
+            this._advance();
+            if(this._isNumber(this._current())) {
+                num += this._current(); // yyyy/mm
+                this._advance();
+                
+                if(!this._isDivOp(this._current())) return restart();
+                
+                num += this._current(); // yyyy/mm/
+                this._advance();
+                
+                if(this._isNumber(this._current())) {
+                    num += this._current(); // yyyy/mm/d
+                    this._advance();
+                    if(this._isNumber(this._current())) {
+                        num += this._current(); // yyyy/mm/dd
+                        this._advance();
+                        if(!this._isNumber(this._current())) {
+                            if(dayjs(num, "YYYY/MM/DD", true).isValid()) return {
+                                type: "DateLiteral",
+                                value: num
+                            }
+                            return restart();
+                        }
+                        return restart();
+                    }
+                    return restart();
+                }
+            }
+        }
+        return restart();
     }
 
     /**
