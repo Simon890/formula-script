@@ -23,8 +23,8 @@ export class FunctionsRegistry {
      */
     public register(name: string, a: FormulaFunction | ObjectFormulaFunction) {
         let finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
-        if(finalName.startsWith("_")) this._magicFunctions.set(finalName.toUpperCase(), a);
-        else this._functions.set(finalName.toUpperCase(), a);
+        if(finalName.startsWith("_")) this._magicFunctions.set(finalName, a);
+        else this._functions.set(finalName, a);
     }
 
     /**
