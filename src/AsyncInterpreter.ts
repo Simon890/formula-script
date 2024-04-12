@@ -119,10 +119,11 @@ export class AsyncInterpreter {
 
         this._config = {
             useLiteralDate: true,
+            isCaseSensitive: true,
             ...config
         }
 
-        this._registry = new FunctionsRegistry();
+        this._registry = new FunctionsRegistry(this._config);
         this._registry.register("SUM", new Sum);
         this._registry.register("SUMRANGE", new SumRange);
         this._registry.register("AVG", new Avg);

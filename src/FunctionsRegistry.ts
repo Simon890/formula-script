@@ -1,12 +1,19 @@
 import { FunctionDoesNotExist } from "./errors/FunctionDoesNotExist";
 import { FormulaFunction } from "./FormulaFunction";
+import { Config } from "./types/config";
 import { ObjectFormulaFunction } from "./types/formulaFunction";
 
 export class FunctionsRegistry {
     private _functions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
     private _magicFunctions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
+    private _config : Config;
 
-    constructor() {
+    constructor(config ?: Config) {
+        this._config = {
+            useLiteralDate: true,
+            isCaseSensitive: true,
+            ...config
+        }
     }
 
     /**
@@ -15,8 +22,9 @@ export class FunctionsRegistry {
      * @param a FormulaFunction | ObjectFormulaFunction.
      */
     public register(name: string, a: FormulaFunction | ObjectFormulaFunction) {
-        if(name.startsWith("_")) this._magicFunctions.set(name, a);
-        else this._functions.set(name, a);
+        let finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
+        if(finalName.startsWith("_")) this._magicFunctions.set(finalName.toUpperCase(), a);
+        else this._functions.set(finalName.toUpperCase(), a);
     }
 
     /**
@@ -24,7 +32,7 @@ export class FunctionsRegistry {
      * @param name Function's name.
      */
     public remove(name: string) {
-        this._functions.delete(name);
+        this._functions.delete(name.toUpperCase());
     }
 
     /**
@@ -33,9 +41,11 @@ export class FunctionsRegistry {
      * @param newName Function's new name.
      */
     public rename(name: string, newName: string) {
-        const formulaFunction = this.get(name);
-        this.remove(name);
-        this.register(newName, formulaFunction);
+        const finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
+        const finalNewName = this._config.isCaseSensitive ? name : newName.toUpperCase();
+        const formulaFunction = this.get(finalName);
+        this.remove(finalName);
+        this.register(finalNewName, formulaFunction);
     }
 
     /**
@@ -45,12 +55,14 @@ export class FunctionsRegistry {
      * @returns FormulaFunction | ObjectFormulaFunction.
      */
     public get(name: string) : FormulaFunction | ObjectFormulaFunction {
-        if(this.has(name)) return name.startsWith("_") ? this._magicFunctions.get(name)! : this._functions.get(name)!;
-        throw new FunctionDoesNotExist(name);
+        const finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
+        if(this.has(finalName)) return finalName.startsWith("_") ? this._magicFunctions.get(finalName)! : this._functions.get(finalName)!;
+        throw new FunctionDoesNotExist(finalName);
     }
 
     public has(name : string) {
-        if(name.startsWith("_")) return this._magicFunctions.has(name);
-        return this._functions.has(name);
+        const finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
+        if(finalName.startsWith("_")) return this._magicFunctions.has(finalName);
+        return this._functions.has(finalName);
     }
 }

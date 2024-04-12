@@ -34,10 +34,11 @@ export class Tokenizer {
             if(current == undefined) throw new UnexpectedEndOfInput();
             if(this._isChar(current)) {
                 const identifier = this._identifier();
-                if(identifier.value == "TRUE" || identifier.value == "FALSE") {
+                const finalValue = this._config.isCaseSensitive ? identifier.value : identifier.value.toUpperCase();
+                if(finalValue == "TRUE" || finalValue == "FALSE") {
                     this._tokens.push({
                         type: "BoolLiteral",
-                        value: identifier.value == "TRUE"
+                        value: finalValue == "TRUE"
                     });
                 } else {
                     this._tokens.push(identifier);

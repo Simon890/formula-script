@@ -1,3 +1,4 @@
 export type Config = {
-    useLiteralDate: boolean
+    useLiteralDate ?: boolean,
+    isCaseSensitive ?: boolean
 }
