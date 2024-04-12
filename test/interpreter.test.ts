@@ -123,6 +123,8 @@ test("Interpreter - Case sensitive", () => {
     expect(i.run("MyFuNcTiOn()")).toEqual(1);
     expect(() => i.run("MyFuNcTiON()")).toThrow(Error);
     expect(() => i.run("MYFUNCTION()")).toThrow(Error);
+    expect(i.run("TRUE")).toEqual(true);
+    expect(i.run("trUE")).toEqual("trUE");
 });
 
 test("Interpreter - Case insensitive", () => {
@@ -151,4 +153,6 @@ test("Interpreter - Case insensitive", () => {
     expect(i.run("MyFuNcTiOn()")).toEqual(1);
     expect(i.run("MyFuNcTiON()")).toEqual(1);
     expect(i.run("MYFUNCTION()")).toEqual(1);
+    expect(i.run("TRUE")).toEqual(true);
+    expect(i.run("trUE")).toEqual(true);
 });
