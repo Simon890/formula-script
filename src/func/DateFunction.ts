@@ -1,7 +1,9 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat.js"
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
 import { ValidType } from "../types/validTypes";
+dayjs.extend(customParseFormat);
 
 export class DateFunction extends FormulaFunction {
 

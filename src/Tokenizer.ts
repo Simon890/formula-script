@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import customParseFormat from 'dayjs/plugin/customParseFormat'
+import customParseFormat from 'dayjs/plugin/customParseFormat.js'
 import { UnexpectedEndOfInput } from "./errors/UnexpectedEndOfInput";
 import { UnknownTokenError } from "./errors/UnknownToken";
 import { Token, TokenAddOp, TokenColon, TokenComma, TokenDateLiteral, TokenDivOp, TokenEqOp, TokenGtOp, TokenIdentifier, TokenLeftParen, TokenLtOp, TokenMultOp, TokenNotEqOp, TokenNumberLiteral, TokenPowOp, TokenRightParen, TokenStringLiteral, TokenSubOp } from "./types/tokens";
