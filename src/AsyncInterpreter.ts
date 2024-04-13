@@ -25,6 +25,7 @@ import { DateGtDate } from "./func/magic/DateGtDate";
 import { DateGteDate } from "./func/magic/DateGteDate";
 import { DateLtDate } from "./func/magic/DateLtDate";
 import { DateLteDate } from "./func/magic/DateLteDate";
+import { DateSubNumber } from "./func/magic/DateSubNumber";
 import { NumberAddDate } from "./func/magic/NumberAddDate";
 import { NumberAddNumber } from "./func/magic/NumberAddNumber";
 import { NumberAddString } from "./func/magic/NumberAddString";
@@ -187,6 +188,7 @@ export class AsyncInterpreter {
         this._registry.register("_NUMBER_EQ_STRING", new NumberEqString);
         this._registry.register("_NUMBER_ADD_DATE", new NumberAddDate);
         this._registry.register("_DATE_ADD_NUMBER", new DateAddNumber);
+        this._registry.register("_DATE_SUB_NUMBER", new DateSubNumber);
         // ### END MAGIC FUNCTIONS ###
     }
     
