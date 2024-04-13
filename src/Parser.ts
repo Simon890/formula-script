@@ -1,4 +1,5 @@
 import { BoolLiteralCannotBeCalled } from "./errors/BoolLiteralCannotBeCalled";
+import { MultipleExpressionsFound } from "./errors/MultipleExpresionsFound";
 import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { AST } from "./types/ast";
 import { BinaryExpression, Token, TokenAddOp, TokenBoolLiteral, TokenDateLiteral, TokenFunctionCall, TokenIdentifier, TokenNumberLiteral, TokenRange, TokenStringLiteral, TokenSubOp, TokenType, UnaryExpression } from "./types/tokens";
@@ -20,6 +21,7 @@ export class Parser {
             this._ast.body.push(token);
             continue;
         }
+        if(this._ast.body.length > 1) throw new MultipleExpressionsFound();
         return this._ast;
     }
 
