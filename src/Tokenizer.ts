@@ -697,5 +697,5 @@ export const REGEX = Object.freeze({
     DOUBLE_QUOTE: /["]/,
     SIMPLE_QUOTE: /[']/,
     COLON: /[:]/,
-    UNDERSCORE: /[\_]/
+    UNDERSCORE: /[_]/
 });
