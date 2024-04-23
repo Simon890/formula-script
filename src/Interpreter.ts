@@ -264,6 +264,7 @@ export class Interpreter {
      */
     private _binaryExpression(token : Token) : ValidType {
         if(token.type == "NumberLiteral") return Number(token.value);
+        if(token.type == "BoolLiteral") return Boolean(token.value);
         if(token.type == "StringLiteral") return String(token.value);
         if(token.type == "DateLiteral") return new Date(token.value);
         if(token.type == "FunctionCall") return this._functionCall(token);
