@@ -1,0 +1,1 @@
+export type FailFunction = (message : string) => never

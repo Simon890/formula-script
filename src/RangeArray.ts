@@ -32,6 +32,19 @@ export class RangeArray {
     }
 
     /**
+     * Checks whether the index exists and if its element is of type range.
+     * @param index argument position.
+     * @throws RangeElementWrongType.
+     * @returns RangeArray.
+     */
+    public asRange(index : number) {
+        this._checkIndex(index);
+        const value = this._range[index];
+        if(!Array.isArray(value)) throw new RangeElementWrongType(index, "range");
+        return new RangeArray(value);
+    }
+
+    /**
      * Checks whether the index exists and if its element is of type string.
      * @param index argument position.
      * @throws RangeElementWrongType.
@@ -78,7 +91,9 @@ export class RangeArray {
      */
     public asAny(index : number) : any {
         this._checkIndex(index);
-        return this._range[index];
+        const value = this._range[index];
+        if(Array.isArray(value)) return new RangeArray(value);
+        return value;
     }
 
     /**

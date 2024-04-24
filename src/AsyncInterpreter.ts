@@ -3,6 +3,7 @@ import { CellReferenceHandler } from "./CellReferenceHandler";
 import { BinaryOperationError } from "./errors/BinaryOperationError";
 import { CellRefError } from "./errors/CellRefError";
 import { ExpectedValueNotMatch } from "./errors/ExpectedValueNotMatch";
+import { FunctionError } from "./errors/FunctionError";
 import { MissingArguments } from "./errors/MissingArguments";
 import { NoCellReferenceHandlerSet } from "./errors/NoCellReferenceHandlerSet";
 import { NoRangeHandlerSet } from "./errors/NoRangeHandlerSet";
@@ -10,10 +11,8 @@ import { UnexpectedToken } from "./errors/UnexpectedToken";
 import { FormulaFunction } from "./FormulaFunction";
 import { Abs } from "./func/Abs";
 import { Avg } from "./func/Avg";
-import { AvgRange } from "./func/AvgRange";
 import { Bool } from "./func/Bool";
 import { Choose } from "./func/Choose";
-import { ChooseRange } from "./func/ChooseRange";
 import { Concat } from "./func/Concat";
 import { DateFunction } from "./func/DateFunction";
 import { Day } from "./func/Day";
@@ -58,7 +57,6 @@ import { Round } from "./func/Round";
 import { Sqrt } from "./func/Sqrt";
 import { Str } from "./func/Str";
 import { Sum } from "./func/Sum";
-import { SumRange } from "./func/SumRange";
 import { Today } from "./func/Today";
 import { Year } from "./func/Year";
 import { FunctionsRegistry } from "./FunctionsRegistry";
@@ -126,13 +124,10 @@ export class AsyncInterpreter {
 
         this._registry = new FunctionsRegistry(this._config);
         this._registry.register("SUM", new Sum);
-        this._registry.register("SUMRANGE", new SumRange);
         this._registry.register("AVG", new Avg);
-        this._registry.register("AVGRANGE", new AvgRange);
         this._registry.register("RANDOM", new Random);
         this._registry.register("ABS", new Abs);
         this._registry.register("CHOOSE", new Choose);
-        this._registry.register("CHOOSERANGE", new ChooseRange);
         this._registry.register("MAX", new Max);
         this._registry.register("MIN", new Min);
         this._registry.register("IF", new If);
@@ -327,7 +322,7 @@ export class AsyncInterpreter {
             else numParams = formulaFunction.numParams;
         }
         if(numParams !== undefined && numParams !== null && numParams != args.length) throw new MissingArguments(identifier, numParams, args.length);
-            return formulaFunction.call(new Arguments(args));
+            return formulaFunction.call(new Arguments(args), this._functionError);
     }
 
     private async _callMagicFunction(leftValue : ValidType, operator : string, rightValue : ValidType) : Promise<ValidType> {
@@ -337,7 +332,7 @@ export class AsyncInterpreter {
         let name = "_" + leftStr + "_" + operatorStr + "_" + rightStr;
         if(!this._registry.has(name)) throw new BinaryOperationError(this._opToAction[operator], leftStr, rightStr);
         const formulaFunction = this._registry.get(name);
-        const returnValue = formulaFunction.call(new Arguments([leftValue, rightValue]));
+        const returnValue = formulaFunction.call(new Arguments([leftValue, rightValue]), this._functionError);
         return operator == "!=" ? !returnValue : returnValue;
     }
     
@@ -423,5 +418,13 @@ export class AsyncInterpreter {
      */
     private _cellRefError(message : string) : never {
         throw new CellRefError(message);
+    }
+
+    /**
+     * Throws an error when the function has a problem.
+     * @param message error message.
+     */
+    private _functionError(message : string) : never {
+        throw new FunctionError(message);
     }
 }
