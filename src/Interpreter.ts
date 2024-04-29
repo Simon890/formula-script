@@ -20,7 +20,7 @@ import { Concat } from "./func/Concat";
 import { DateFunction } from "./func/DateFunction";
 import { Day } from "./func/Day";
 import { If } from "./func/If";
-import { BoolAddBool } from "./func/magic/BoolAddBool";
+import { BoolEqBool } from "./func/magic/BoolEqBool";
 import { DateAddNumber } from "./func/magic/DateAddNumber";
 import { DateEqDate } from "./func/magic/DateEqDate";
 import { DateGtDate } from "./func/magic/DateGtDate";
@@ -171,7 +171,7 @@ export class Interpreter {
         this._registry.register("_STRING_ADD_STRING", new StringAddString);
 
         // Boolean
-        this._registry.register("_BOOL_EQ_BOOL", new BoolAddBool);
+        this._registry.register("_BOOL_EQ_BOOL", new BoolEqBool);
 
         // Date
         this._registry.register("_DATE_EQ_DATE", new DateEqDate);
