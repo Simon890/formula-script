@@ -1,5 +1,6 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
+import { FFMetadata } from "../types/formulaFunction";
 import { ValidType } from "../types/validTypes";
 
 export class Max extends FormulaFunction {
@@ -12,5 +13,17 @@ export class Max extends FormulaFunction {
             }
         }
         return max;
+    }
+
+    public metadata() : FFMetadata {
+        return {
+            desc: "Returns the maximum value from a set of numbers",
+            args: [
+                {
+                    type: "...number",
+                    desc: "Any amount of numbers"
+                }
+            ]
+        }
     }
 }

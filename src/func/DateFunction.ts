@@ -3,6 +3,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat.js"
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
 import { ValidType } from "../types/validTypes";
+import { FFMetadata } from "../types/formulaFunction";
 dayjs.extend(customParseFormat);
 
 export class DateFunction extends FormulaFunction {
@@ -18,5 +19,25 @@ export class DateFunction extends FormulaFunction {
 
     public numParams(): number | null | undefined {
         return 3;
+    }
+
+    public metadata() : FFMetadata {
+        return {
+            desc: "Returns a date given the year, month and day parameters",
+            args: [
+                {
+                    type: "number",
+                    desc: "Year"
+                },
+                {
+                    type: "number",
+                    desc: "Month"
+                },
+                {
+                    type: "number",
+                    desc: "Day"
+                }
+            ]
+        }
     }
 }

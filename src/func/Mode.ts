@@ -1,5 +1,6 @@
 import { Arguments } from "../Arguments";
 import { FormulaFunction } from "../FormulaFunction";
+import { FFMetadata } from "../types/formulaFunction";
 import { ValidType } from "../types/validTypes";
 
 export class Mode extends FormulaFunction {
@@ -23,5 +24,17 @@ export class Mode extends FormulaFunction {
             }
         }
         return mode;
+    }
+
+    public metadata() : FFMetadata {
+        return {
+            desc: "Returns the most frequently occurring value in a set of numbers",
+            args: [
+                {
+                    type: "...number",
+                    desc: "Any amount of numbers"
+                }
+            ]
+        }
     }
 }

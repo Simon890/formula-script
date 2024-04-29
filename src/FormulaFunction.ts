@@ -19,4 +19,8 @@ export abstract class FormulaFunction {
     public numParams() : number | null | undefined {
         return undefined;
     }
+
+    public metadata() : any {
+        return null;
+    }
 }

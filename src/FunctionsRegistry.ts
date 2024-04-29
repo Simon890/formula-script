@@ -1,7 +1,7 @@
 import { FunctionDoesNotExist } from "./errors/FunctionDoesNotExist";
 import { FormulaFunction } from "./FormulaFunction";
 import { Config } from "./types/config";
-import { ObjectFormulaFunction } from "./types/formulaFunction";
+import { FormulaFunctionResult, ObjectFormulaFunction } from "./types/formulaFunction";
 
 export class FunctionsRegistry {
     private _functions = new Map<string, FormulaFunction | ObjectFormulaFunction>();
@@ -58,6 +58,22 @@ export class FunctionsRegistry {
         const finalName = this._config.isCaseSensitive ? name : name.toUpperCase();
         if(this.has(finalName)) return finalName.startsWith("_") ? this._magicFunctions.get(finalName)! : this._functions.get(finalName)!;
         throw new FunctionDoesNotExist(finalName);
+    }
+
+    public getAll() : FormulaFunctionResult {
+        const functions : FormulaFunctionResult['functions'] = {};
+        const magicFunctions : FormulaFunctionResult['functions'] = {};
+
+        this._functions.forEach((value, key) => {
+            functions[key] = value;
+        });
+        this._magicFunctions.forEach((value, key) => {
+            magicFunctions[key] = value;
+        });
+        return {
+            functions,
+            magicFunctions
+        }
     }
 
     public has(name : string) {
